@@ -2,7 +2,7 @@
 NanoCorp v3.0 - AI Provider
 
 Real AI integration with multiple LLM backends.
-Supports: Anthropic Claude, OpenAI GPT, Ollama (free)
+Supports: Anthropic Claude, OpenAI GPT, Ollama, OpenHands Cloud
 """
 from __future__ import annotations
 from typing import Dict, List, Optional, Any, AsyncIterator
@@ -262,6 +262,43 @@ class LiteLLMProvider(AIProvider):
             yield f"[LiteLLM error: {e}]"
 
 
+class OpenHandsCloudProvider(AIProvider):
+    """OpenHands Cloud - Use OpenHands AI agents via Cloud API.
+    
+    Uses OPENHANDS_API_KEY to create cloud conversations.
+    Requires: pip install httpx
+    """
+    def __init__(self, api_key: Optional[str] = None):
+        self.api_key = api_key or os.environ.get("OPENHANDS_API_KEY") or os.environ.get("OPENHANDS_CLOUD_API_KEY")
+        self.base_url = "https://app.all-hands.dev"
+    
+    async def chat(self, prompt: str, system: Optional[str] = None, **kwargs) -> AIResponse:
+        if not self.api_key:
+            return AIResponse(content="[Cloud requires OPENHANDS_API_KEY]", model="cloud")
+        try:
+            import httpx
+            headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
+            async with httpx.AsyncClient(timeout=kwargs.get('timeout', 120)) as client:
+                resp = await client.post(
+                    f"{self.base_url}/api/v1/app-conversations",
+                    headers=headers,
+                    json={"initial_message": {"content": [{"type": "text", "text": prompt}]}}
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    conv_id = data.get("app_conversation_id") or data.get("id")
+                    return AIResponse(content=f"[Cloud started: {conv_id}]", model="cloud")
+                return AIResponse(content=f"[Cloud error: {resp.status_code}]", model="cloud")
+        except Exception as e:
+            return AIResponse(content=f"[Cloud error: {e}]", model="cloud")
+    
+    async def stream(self, prompt: str, system: Optional[str] = None, **kwargs) -> AsyncIterator[str]:
+        response = await self.chat(prompt, system, **kwargs)
+        for char in response.content:
+            yield char
+            await asyncio.sleep(0.005)
+
+
 class SimulationProvider(AIProvider):
     """Simulated AI for demo purposes when no API key is available."""
     
@@ -323,6 +360,13 @@ class AIHub:
         # Always add Ollama
         self.providers["ollama"] = OllamaProvider()
         
+
+        # Add OpenHands Cloud if API key available
+        if os.environ.get("OPENHANDS_API_KEY") or os.environ.get("OPENHANDS_CLOUD_API_KEY"):
+            self.providers["openhands"] = OpenHandsCloudProvider()
+            if not self._default:
+                self._default = "openhands"
+
         # Add simulation as fallback
         self.providers["simulation"] = SimulationProvider()
         if not self._default:
