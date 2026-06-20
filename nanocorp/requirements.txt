@@ -1,0 +1,31 @@
+# OpenHands SDK for AI Agent System
+openhands-sdk>=0.2.0
+openhands-tools>=0.2.0
+
+# Web Development & Browsing
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+html2text>=2020.1.16
+
+# Document Creation
+python-docx>=1.1.0
+reportlab>=4.0.0
+markdown>=3.5.0
+
+# Email Integration
+smtplib (built-in)
+email (built-in)
+
+# Social Media (generic - specific integrations require API keys)
+# linkedin-api>=2.0.0
+# twitter>=1.19.0
+
+# Utilities
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+aiohttp>=3.9.0
+asyncio-throttle>=1.0.2
+
+# Optional: Enhanced LLM capabilities
+anthropic>=0.18.0
+openai>=1.12.0

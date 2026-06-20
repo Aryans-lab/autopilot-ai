@@ -1,0 +1,44 @@
+# NanoCorp Docker Compose
+# Run your AI startup system in Docker!
+
+version: '3.8'
+
+services:
+  nanocorp:
+    build: .
+    container_name: nanocorp
+    volumes:
+      - ./workspace:/workspace
+      - ./config:/config
+    environment:
+      - PYTHONUNBUFFERED=1
+      - OPENHANDS_SUPPRESS_BANNER=1
+    ports:
+      - "8000:8000"  # Web dashboard
+    networks:
+      - nanocorp-net
+
+  # Optional: Ollama server for free AI
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    volumes:
+      - ollama-data:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - nanocorp-net
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  ollama-data:
+
+networks:
+  nanocorp-net:
+    driver: bridge
