@@ -1,0 +1,161 @@
+{
+  "entries": [
+    {
+      "id": "eeffcec86ec5",
+      "content": "Worker joined: Coder (coder)",
+      "memory_type": "semantic",
+      "importance": 0.5,
+      "access_count": 0,
+      "created_at": "2026-06-20T08:52:40.876269",
+      "last_accessed": null,
+      "tags": [
+        "worker",
+        "coder"
+      ],
+      "related_ids": [],
+      "metadata": {}
+    },
+    {
+      "id": "1877387319c1",
+      "content": "Worker joined: Designer (designer)",
+      "memory_type": "semantic",
+      "importance": 0.5,
+      "access_count": 0,
+      "created_at": "2026-06-20T08:52:40.876531",
+      "last_accessed": null,
+      "tags": [
+        "worker",
+        "designer"
+      ],
+      "related_ids": [],
+      "metadata": {}
+    },
+    {
+      "id": "73064a48c003",
+      "content": "Worker joined: Researcher (researcher)",
+      "memory_type": "semantic",
+      "importance": 0.5,
+      "access_count": 0,
+      "created_at": "2026-06-20T08:52:40.876797",
+      "last_accessed": null,
+      "tags": [
+        "worker",
+        "researcher"
+      ],
+      "related_ids": [],
+      "metadata": {}
+    },
+    {
+      "id": "11ab8874900f",
+      "content": "Worker joined: Marketer (marketer)",
+      "memory_type": "semantic",
+      "importance": 0.5,
+      "access_count": 0,
+      "created_at": "2026-06-20T08:52:40.877330",
+      "last_accessed": null,
+      "tags": [
+        "worker",
+        "marketer"
+      ],
+      "related_ids": [],
+      "metadata": {}
+    },
+    {
+      "id": "3f0f843ff3e9",
+      "content": "Worker joined: Writer (writer)",
+      "memory_type": "semantic",
+      "importance": 0.5,
+      "access_count": 0,
+      "created_at": "2026-06-20T08:52:40.877787",
+      "last_accessed": null,
+      "tags": [
+        "worker",
+        "writer"
+      ],
+      "related_ids": [],
+      "metadata": {}
+    },
+    {
+      "id": "a5cc55e2c2dd",
+      "content": "Completed research task: Research AI coding assistants [Outcome: failure]",
+      "memory_type": "procedural",
+      "importance": 0.9,
+      "access_count": 0,
+      "created_at": "2026-06-20T08:52:40.879049",
+      "last_accessed": null,
+      "tags": [
+        "learned",
+        "failure"
+      ],
+      "related_ids": [],
+      "metadata": {
+        "outcome": "failure",
+        "context": {}
+      }
+    },
+    {
+      "id": "939d21f0efc1",
+      "content": "Completed design task: Create landing page design [Outcome: success]",
+      "memory_type": "insight",
+      "importance": 0.9,
+      "access_count": 0,
+      "created_at": "2026-06-20T08:52:40.879358",
+      "last_accessed": null,
+      "tags": [
+        "learned",
+        "success"
+      ],
+      "related_ids": [],
+      "metadata": {
+        "outcome": "success",
+        "context": {}
+      }
+    },
+    {
+      "id": "edc135ed6f66",
+      "content": "Completed writing task: Write product description [Outcome: success]",
+      "memory_type": "insight",
+      "importance": 0.9,
+      "access_count": 0,
+      "created_at": "2026-06-20T08:52:40.879968",
+      "last_accessed": null,
+      "tags": [
+        "learned",
+        "success"
+      ],
+      "related_ids": [],
+      "metadata": {
+        "outcome": "success",
+        "context": {}
+      }
+    },
+    {
+      "id": "6a9e70c9fad8",
+      "content": "Completed marketing task: Plan marketing campaign [Outcome: success]",
+      "memory_type": "insight",
+      "importance": 0.9,
+      "access_count": 0,
+      "created_at": "2026-06-20T08:52:40.880295",
+      "last_accessed": null,
+      "tags": [
+        "learned",
+        "success"
+      ],
+      "related_ids": [],
+      "metadata": {
+        "outcome": "success",
+        "context": {}
+      }
+    }
+  ],
+  "stats": {
+    "total_memories": 9,
+    "by_type": {
+      "semantic": 5,
+      "procedural": 1,
+      "insight": 3
+    },
+    "total_tags": 9,
+    "avg_importance": 0.6777777777777777
+  }
+}

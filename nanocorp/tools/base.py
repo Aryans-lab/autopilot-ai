@@ -149,13 +149,24 @@ class BaseTool(ABC):
             
             # Get type
             if param.annotation != inspect.Parameter.empty:
-                type_str = param.annotation.__name__
+                try:
+                    type_str = param.annotation.__name__
+                except AttributeError:
+                    type_str = "string"
             else:
                 type_str = "string"
             
+            # Get description
+            if hasattr(param.default, 'description'):
+                desc = param.default.description
+            elif param.default != inspect.Parameter.empty and isinstance(param.default, str):
+                desc = f"Parameter {name} (default: {param.default})"
+            else:
+                desc = f"Parameter {name}"
+            
             parameters[name] = {
                 "type": type_str,
-                "description": param.default.description if hasattr(param.default, 'description') else f"Parameter {name}"
+                "description": desc
             }
             
             if param.default == inspect.Parameter.empty:
