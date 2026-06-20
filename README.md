@@ -3,60 +3,41 @@
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
 [![Stars](https://img.shields.io/github/stars/Aryans-lab/autopilot-ai?style=social)](https://github.com/Aryans-lab/autopilot-ai/stargazers)
 
-**Build and run your entire business with AI agents.** NanoCorp is an autonomous AI operating system that coordinates a team of specialized agents.
+**Build and run your entire startup with AI agents.** NanoCorp coordinates a team of specialized agents to code, design, research, market, and scale your business.
 
-[Getting Started](#-getting-started) • [Features](#-features) • [Documentation](#-documentation) • [Contributing](#-contributing)
+[Live Demo](frontend/index.html) • [Quick Start](#-quick-start) • [Features](#-features)
 
 </div>
 
-## ✨ Features
+---
 
-- 🤖 **9 AI Agents** - CEO, Coder, Designer, Researcher, Marketer, Writer, Data, DevOps
-- 🛠️ **15+ Tools** - Filesystem, Code, Web, Search
-- 🧠 **Vector Memory** - Semantic search with real embeddings
-- 🔌 **MCP Support** - Model Context Protocol integration
-- 🌐 **REST API** - FastAPI-powered API server
-- ⏰ **Scheduler** - Cron-based task scheduling
-- 🪝 **Webhooks** - Event-driven automation
-- 🎨 **Mission Control UI** - World-class frontend with neural networks, particles, terminal
+## 🎨 See It In Action
 
-## 🎨 Mission Control Frontend
-
-A stunning YC-ready dashboard featuring:
-
-```
-frontend/
-├── index.html      # World-class SaaS dashboard
-```
-
-**Visual Features:**
-- 🌌 **Particle System** - Animated particles with connecting lines
-- 🧠 **Neural Network** - Abstract neural visualization
-- 💻 **Terminal** - Live command output
-- 📈 **Charts** - Performance analytics (Chart.js)
-- 🎯 **Command Palette** - Ctrl+K for quick commands
-- 🔔 **Toast Notifications** - Beautiful success/error alerts
-- ⚡ **Real-time Updates** - Live activity feed
-
-**Design:**
-- Premium dark SaaS aesthetic (Linear, Vercel inspired)
-- Space Grotesk + Inter typography
-- Indigo/Violet/Cyan gradient accents
-- Smooth animations throughout
-
-### Run Frontend
+**Open the Mission Control Dashboard:**
 
 ```bash
-cd autopilot-ai
+# Option 1: Direct file (works offline)
 open frontend/index.html
-# or
-python -m http.server 8080 --directory frontend
+
+# Option 2: Serve locally
+cd frontend && python -m http.server 8080
+# Then open http://localhost:8080
 ```
 
-## 📦 Quick Install
+The dashboard features:
+- 🌌 Animated particle system with neural network visualization
+- 💻 Live terminal showing AI agent activity
+- 📈 Performance charts and metrics
+- 🎯 Command palette (press Ctrl+K)
+
+---
+
+## ⚡ Quick Start
+
+### 1. Clone & Install
 
 ```bash
 git clone https://github.com/Aryans-lab/autopilot-ai.git
@@ -64,68 +45,121 @@ cd autopilot-ai
 pip install -e .
 ```
 
-## 🚀 Getting Started
+### 2. Run the Demo
 
 ```python
-from nanocorp.agents import AgentManager, AgentType
+from nanocorp.agents import AgentManager
 from nanocorp.tools.registry import register_all_tools
 
 # Initialize
 register_all_tools()
-manager = AgentManager()
 
-# Create workforce
+# Create AI workforce
+manager = AgentManager()
 ceo = manager.create_workforce(
-    company_name="MyCorp",
-    mission="Build amazing products"
+    company_name="MyStartup",
+    mission="Build the next unicorn"
 )
 
-# Run demo
+# Execute tasks
 import asyncio
 results = asyncio.run(manager.execute_parallel([
-    {"title": "Research AI trends", "type": "research"},
+    {"title": "Research our competitors", "type": "research"},
     {"title": "Build landing page", "type": "coding"},
+    {"title": "Create marketing plan", "type": "marketing"},
 ]))
 ```
 
-## 🏗️ Architecture
+### 3. Open the Dashboard
 
-```
-┌─────────────────────────────────────┐
-│  API Server │ CLI │ Webhooks        │
-├─────────────────────────────────────┤
-│  Skills: Tavily, GitHub, Slack      │
-├─────────────────────────────────────┤
-│  Tools: Files │ Code │ Web          │
-├─────────────────────────────────────┤
-│  MCP Client                         │
-├─────────────────────────────────────┤
-│  CEO │ Coder │ Designer │ ...       │
-├─────────────────────────────────────┤
-│  Memory: Vector + ChromaDB           │
-└─────────────────────────────────────┘
+```bash
+open frontend/index.html
 ```
 
-## 📂 Project Structure
+---
+
+## ✨ Features
+
+| Feature | Description |
+|---------|-------------|
+| 🤖 **9 AI Agents** | CEO, Coder, Designer, Researcher, Marketer, Writer, Data, DevOps |
+| 🛠️ **15+ Tools** | Filesystem, code execution, web scraping, HTTP requests |
+| 🧠 **Vector Memory** | Semantic search with ChromaDB embeddings |
+| 🔌 **MCP Support** | Model Context Protocol integration |
+| 🌐 **REST API** | FastAPI server with WebSocket support |
+| ⏰ **Scheduler** | Cron-based task scheduling |
+| 🪝 **Webhooks** | Event-driven automation |
+| 🎨 **Mission Control** | Beautiful YC-ready dashboard |
+
+---
+
+## 📁 Project Structure
 
 ```
-nanocorp/
-├── agents/          # AI agents (CEO, Workers)
-├── tools/           # 15+ tools
-├── memory/           # Vector embeddings
-├── mcp/             # MCP protocol
-├── skills/           # Skills system
-├── api/              # REST API
-├── sandbox/          # Code sandbox
-└── scheduler/        # Task scheduler
+autopilot-ai/
+├── frontend/
+│   └── index.html          # Mission Control Dashboard
+├── nanocorp/
+│   ├── agents/              # AI agents (CEO + 8 workers)
+│   ├── tools/              # 15+ tools
+│   ├── memory/              # Vector embeddings
+│   ├── mcp/                 # MCP protocol
+│   ├── skills/              # Skills system
+│   ├── api/                 # REST API
+│   ├── sandbox/             # Code sandbox
+│   └── scheduler/           # Task scheduler
+├── tests/                   # pytest tests
+└── README.md
 ```
 
-## 🧪 Testing
+---
+
+## 🧪 Run Tests
 
 ```bash
 pytest tests/ -v
 ```
 
-## 📄 License
+---
+
+## 🌐 REST API
+
+```python
+from nanocorp.api import NanoCorpAPI
+from nanocorp.agents import AgentManager
+
+manager = AgentManager()
+manager.create_workforce("MyCorp", "Build products")
+api = NanoCorpAPI(agent_manager=manager, port=8000)
+api.run()
+```
+
+**Endpoints:**
+- `GET /` - Health check
+- `GET /agents` - List agents
+- `POST /tasks` - Create task
+- `GET /stats` - Stats
+
+---
+
+## 🔧 Configuration
+
+```bash
+# .env file
+AI_PROVIDER=auto
+ANTHROPIC_API_KEY=sk-...      # Optional
+OPENAI_API_KEY=sk-...         # Optional
+EMBEDDING_PROVIDER=sentence-transformers
+TAVILY_API_KEY=tvly-...       # Optional
+GITHUB_TOKEN=ghp_...          # Optional
+```
+
+---
+
+## 📜 License
 
 MIT License - see [LICENSE](LICENSE)
+
+---
+
+**Built for the future of AI-powered startups**
