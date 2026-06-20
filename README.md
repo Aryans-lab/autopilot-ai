@@ -1,165 +1,115 @@
-# 🚀 NanoCorp - Autonomous AI Agent System
+# NanoCorp - Autonomous AI Agent System
 
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
-[![Stars](https://img.shields.io/github/stars/Aryans-lab/autopilot-ai?style=social)](https://github.com/Aryans-lab/autopilot-ai/stargazers)
 
 **Build and run your entire startup with AI agents.** NanoCorp coordinates a team of specialized agents to code, design, research, market, and scale your business.
-
-[Live Demo](frontend/index.html) • [Quick Start](#-quick-start) • [Features](#-features)
 
 </div>
 
 ---
 
-## 🎨 See It In Action
+## Quick Start
 
-**Open the Mission Control Dashboard:**
-
-```bash
-# Option 1: Direct file (works offline)
-open frontend/index.html
-
-# Option 2: Serve locally
-cd frontend && python -m http.server 8080
-# Then open http://localhost:8080
-```
-
-The dashboard features:
-- 🌌 Animated particle system with neural network visualization
-- 💻 Live terminal showing AI agent activity
-- 📈 Performance charts and metrics
-- 🎯 Command palette (press Ctrl+K)
-
----
-
-## ⚡ Quick Start
-
-### 1. Clone & Install
+### 1. Clone & Run Demo
 
 ```bash
 git clone https://github.com/Aryans-lab/autopilot-ai.git
 cd autopilot-ai
-pip install -e .
+
+# Run the working demo
+python nanocorp/examples/demo_working.py
 ```
 
-### 2. Run the Demo
-
-```python
-from nanocorp.agents import AgentManager
-from nanocorp.tools.registry import register_all_tools
-
-# Initialize
-register_all_tools()
-
-# Create AI workforce
-manager = AgentManager()
-ceo = manager.create_workforce(
-    company_name="MyStartup",
-    mission="Build the next unicorn"
-)
-
-# Execute tasks
-import asyncio
-results = asyncio.run(manager.execute_parallel([
-    {"title": "Research our competitors", "type": "research"},
-    {"title": "Build landing page", "type": "coding"},
-    {"title": "Create marketing plan", "type": "marketing"},
-]))
-```
-
-### 3. Open the Dashboard
+### 2. Start the API Server
 
 ```bash
-open frontend/index.html
+# In one terminal
+python -m nanocorp.api.server
+
+# Then open in browser:
+# - API docs: http://localhost:8000/docs
+# - Dashboard: frontend/demo.html
+```
+
+### 3. Add API Keys (Optional)
+
+```bash
+export ANTHROPIC_API_KEY=sk-...    # For Claude
+export OPENAI_API_KEY=sk-...       # For GPT-4
 ```
 
 ---
 
-## ✨ Features
+## Features
 
 | Feature | Description |
 |---------|-------------|
-| 🤖 **9 AI Agents** | CEO, Coder, Designer, Researcher, Marketer, Writer, Data, DevOps |
-| 🛠️ **15+ Tools** | Filesystem, code execution, web scraping, HTTP requests |
-| 🧠 **Vector Memory** | Semantic search with ChromaDB embeddings |
-| 🔌 **MCP Support** | Model Context Protocol integration |
-| 🌐 **REST API** | FastAPI server with WebSocket support |
-| ⏰ **Scheduler** | Cron-based task scheduling |
-| 🪝 **Webhooks** | Event-driven automation |
-| 🎨 **Mission Control** | Beautiful YC-ready dashboard |
+| 🤖 **AI Agents** | CEO + 5 workers (Coder, Designer, Researcher, Marketer, Writer) |
+| 🧠 **Real AI** | Connects to Claude, GPT-4, Ollama, or simulates |
+| 🌐 **REST API** | FastAPI server with all endpoints |
+| 📊 **Dashboard** | Web UI to control your AI workforce |
+| 🛠️ **Tools** | Filesystem, code execution, web search |
+| 📝 **Memory** | Vector embeddings for context |
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 autopilot-ai/
 ├── frontend/
-│   └── index.html          # Mission Control Dashboard
+│   ├── index.html      # Premium dashboard (visual demo)
+│   └── demo.html       # Working dashboard (connects to API)
 ├── nanocorp/
-│   ├── agents/              # AI agents (CEO + 8 workers)
-│   ├── tools/              # 15+ tools
-│   ├── memory/              # Vector embeddings
-│   ├── mcp/                 # MCP protocol
-│   ├── skills/              # Skills system
-│   ├── api/                 # REST API
-│   ├── sandbox/             # Code sandbox
-│   └── scheduler/           # Task scheduler
-├── tests/                   # pytest tests
+│   ├── agents/         # CEO and worker agents
+│   ├── ai/            # AI providers (Claude, GPT, Ollama)
+│   ├── api/           # FastAPI REST server
+│   ├── tools/         # Filesystem, web, code tools
+│   └── examples/      # Demo scripts
 └── README.md
 ```
 
 ---
 
-## 🧪 Run Tests
+## API Endpoints
 
-```bash
-pytest tests/ -v
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | API info |
+| GET | `/health` | Health check |
+| POST | `/workforce` | Create workforce |
+| GET | `/agents` | List all agents |
+| POST | `/tasks` | Execute a task |
+| GET | `/stats` | Get statistics |
+
+---
+
+## Demo Output
+
+```
+╔══════════════════════════════════════════════════════════════╗
+║     NanoCorp - WORKING DEMO - AI-POWERED AGENTS             ║
+╚══════════════════════════════════════════════════════════════╝
+
+[1] AI Hub initialized (simulation mode)
+[2] Tools ready
+[3] Workforce created: AIStartup
+[4] 5 workers active
+
+[5] CEO Thinking with AI...
+Response: [SIMULATED AI] Prompt: What are the 3 most important...
+
+[6] Task executed successfully
+[7] Strategic plan created (3 goals, 9 tasks)
+
+DEMO COMPLETE!
 ```
 
 ---
 
-## 🌐 REST API
+## License
 
-```python
-from nanocorp.api import NanoCorpAPI
-from nanocorp.agents import AgentManager
-
-manager = AgentManager()
-manager.create_workforce("MyCorp", "Build products")
-api = NanoCorpAPI(agent_manager=manager, port=8000)
-api.run()
-```
-
-**Endpoints:**
-- `GET /` - Health check
-- `GET /agents` - List agents
-- `POST /tasks` - Create task
-- `GET /stats` - Stats
-
----
-
-## 🔧 Configuration
-
-```bash
-# .env file
-AI_PROVIDER=auto
-ANTHROPIC_API_KEY=sk-...      # Optional
-OPENAI_API_KEY=sk-...         # Optional
-EMBEDDING_PROVIDER=sentence-transformers
-TAVILY_API_KEY=tvly-...       # Optional
-GITHUB_TOKEN=ghp_...          # Optional
-```
-
----
-
-## 📜 License
-
-MIT License - see [LICENSE](LICENSE)
-
----
-
-**Built for the future of AI-powered startups**
+MIT - See [LICENSE](LICENSE)
