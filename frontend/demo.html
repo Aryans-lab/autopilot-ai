@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NanoCorp - AI Agent Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #fff; min-height: 100vh; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        
+        .header { text-align: center; margin-bottom: 40px; }
+        .logo { font-size: 32px; font-weight: 700; background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { color: #888; margin-top: 8px; }
+        
+        .status-box { background: #111; border: 1px solid #222; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+        .status-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .status-title { font-weight: 600; }
+        .status-badge { padding: 4px 12px; background: #222; border-radius: 999px; font-size: 12px; color: #10b981; }
+        
+        .connect-form { display: flex; gap: 12px; margin-bottom: 20px; }
+        .connect-form input { flex: 1; padding: 12px 16px; background: #0a0a0f; border: 1px solid #333; border-radius: 8px; color: #fff; }
+        .connect-form button { padding: 12px 24px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; border-radius: 8px; color: #fff; font-weight: 600; cursor: pointer; }
+        
+        .demo-section { background: #111; border: 1px solid #222; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+        .demo-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+        
+        .btn { padding: 12px 24px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #fff; cursor: pointer; margin-right: 8px; margin-bottom: 8px; }
+        .btn:hover { background: #222; }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; }
+        
+        .output { background: #0a0a0f; border: 1px solid #222; border-radius: 8px; padding: 16px; margin-top: 16px; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 13px; }
+        .output-line { margin-bottom: 8px; color: #888; }
+        .output-line.success { color: #10b981; }
+        .output-line.error { color: #ef4444; }
+        .output-line.info { color: #6366f1; }
+        
+        .agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 16px; }
+        .agent-card { background: #0a0a0f; border: 1px solid #222; border-radius: 8px; padding: 16px; }
+        .agent-name { font-weight: 600; margin-bottom: 4px; }
+        .agent-type { font-size: 12px; color: #6366f1; }
+        .agent-status { font-size: 11px; color: #888; margin-top: 8px; }
+        
+        .loading { display: inline-block; width: 16px; height: 16px; border: 2px solid #333; border-top-color: #6366f1; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .instructions { background: #0a0a0f; border: 1px solid #222; border-radius: 8px; padding: 16px; margin-top: 24px; }
+        .instructions h3 { margin-bottom: 12px; }
+        .instructions code { background: #1a1a1a; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">NanoCorp</div>
+            <div class="subtitle">Autonomous AI Agent System</div>
+        </div>
+        
+        <div class="status-box">
+            <div class="status-header">
+                <div class="status-title">Connection Status</div>
+                <div class="status-badge" id="statusBadge">Not Connected</div>
+            </div>
+            
+            <div class="connect-form">
+                <input type="text" id="apiUrl" placeholder="API URL (e.g., http://localhost:8000)" value="http://localhost:8000">
+                <button onclick="connect()">Connect</button>
+            </div>
+            
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-primary" onclick="createWorkforce()">Create Workforce</button>
+                <button class="btn" onclick="listAgents()">List Agents</button>
+                <button class="btn" onclick="createTask()">Create Task</button>
+                <button class="btn" onclick="getStats()">Get Stats</button>
+            </div>
+            
+            <div class="output" id="output"></div>
+        </div>
+        
+        <div class="demo-section">
+            <div class="demo-title">Quick Actions</div>
+            <button class="btn" onclick="quickTask('coding', 'Build a REST API')">Coding Task</button>
+            <button class="btn" onclick="quickTask('writing', 'Write a blog post about AI')">Writing Task</button>
+            <button class="btn" onclick="quickTask('research', 'Research competitor products')">Research Task</button>
+            <button class="btn" onclick="quickTask('marketing', 'Create marketing plan')">Marketing Task</button>
+            
+            <div class="agents-grid" id="agentsGrid"></div>
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Run</h3>
+            <p style="margin-bottom: 12px; color: #888;">1. Start the API server:</p>
+            <code style="display: block; margin-bottom: 16px;">cd /workspace/project/autopilot-ai && python -m nanocorp.api.server</code>
+            <p style="margin-bottom: 12px; color: #888;">2. Or run directly:</p>
+            <code style="display: block; margin-bottom: 16px;">python -m nanocorp.api.server</code>
+            <p style="margin-bottom: 12px; color: #888;">3. Open this file in your browser and click "Connect"</p>
+        </div>
+    </div>
+    
+    <script>
+        let apiUrl = 'http://localhost:8000';
+        
+        function log(message, type = '') {
+            const output = document.getElementById('output');
+            const line = document.createElement('div');
+            line.className = 'output-line ' + type;
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function setStatus(status, text) {
+            const badge = document.getElementById('statusBadge');
+            badge.textContent = text;
+            badge.style.background = status === 'connected' ? 'rgba(16,185,129,0.2)' : '#222';
+            badge.style.color = status === 'connected' ? '#10b981' : '#888';
+        }
+        
+        async function apiCall(method, endpoint, body = null) {
+            const options = {
+                method,
+                headers: { 'Content-Type': 'application/json' }
+            };
+            if (body) options.body = JSON.stringify(body);
+            
+            const response = await fetch(apiUrl + endpoint, options);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        }
+        
+        async function connect() {
+            apiUrl = document.getElementById('apiUrl').value;
+            log('Connecting to ' + apiUrl + '...', 'info');
+            try {
+                const data = await apiCall('GET', '/');
+                log('Connected! API: ' + data.name + ' v' + data.version, 'success');
+                setStatus('connected', 'Connected');
+            } catch (e) {
+                log('Connection failed: ' + e.message, 'error');
+                setStatus('error', 'Error');
+            }
+        }
+        
+        async function createWorkforce() {
+            log('Creating workforce...', 'info');
+            try {
+                const data = await apiCall('POST', '/workforce', {
+                    company_name: 'My AI Startup',
+                    mission: 'Build amazing products with AI'
+                });
+                log('Workforce created: ' + data.company, 'success');
+                log('Workers: ' + data.workers, 'success');
+                await listAgents();
+            } catch (e) {
+                log('Error: ' + e.message, 'error');
+            }
+        }
+        
+        async function listAgents() {
+            log('Fetching agents...', 'info');
+            try {
+                const data = await apiCall('GET', '/agents');
+                log('Found ' + data.count + ' agents', 'success');
+                
+                const grid = document.getElementById('agentsGrid');
+                grid.innerHTML = '';
+                
+                data.agents.forEach(agent => {
+                    const card = document.createElement('div');
+                    card.className = 'agent-card';
+                    card.innerHTML = `
+                        <div class="agent-name">${agent.name}</div>
+                        <div class="agent-type">${agent.type}</div>
+                        <div class="agent-status">Status: ${agent.status}</div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (e) {
+                log('Error: ' + e.message, 'error');
+            }
+        }
+        
+        async function createTask() {
+            const types = ['coding', 'writing', 'research', 'marketing', 'design'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            await quickTask(type, 'Demo task from dashboard');
+        }
+        
+        async function quickTask(type, title) {
+            log(`Creating ${type} task: ${title}...`, 'info');
+            try {
+                const data = await apiCall('POST', '/tasks', {
+                    title,
+                    type,
+                    description: 'Task from dashboard demo'
+                });
+                if (data.success) {
+                    log('Task created!', 'success');
+                } else {
+                    log('Task failed', 'error');
+                }
+            } catch (e) {
+                log('Error: ' + e.message, 'error');
+            }
+        }
+        
+        async function getStats() {
+            log('Fetching stats...', 'info');
+            try {
+                const data = await apiCall('GET', '/stats');
+                log('Workers: ' + data.workers, 'success');
+                log('Total tasks: ' + data.tasks_total, 'success');
+                log('Pending: ' + data.tasks_pending, 'success');
+                log('Completed: ' + data.tasks_completed, 'success');
+            } catch (e) {
+                log('Error: ' + e.message, 'error');
+            }
+        }
+        
+        // Auto-connect on load
+        connect();
+    </script>
+</body>
+</html>
