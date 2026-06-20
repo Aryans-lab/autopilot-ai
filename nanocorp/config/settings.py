@@ -1,112 +1,271 @@
 """
-NanoCorp Configuration
-Central configuration for the autonomous AI startup system
+NanoCorp v3.0 - Unified Configuration System
+
+Single source of truth for all configuration using Pydantic.
+Supports environment variables and .env files.
 """
+from __future__ import annotations
+
 import os
 from pathlib import Path
-from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any
-from datetime import datetime
+from typing import Optional, List, Dict, Any, Literal
+from functools import lru_cache
+
+from pydantic import BaseModel, Field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class LLMConfig(BaseModel):
-    """LLM Provider Configuration"""
-    provider: str = Field(default_factory=lambda: os.getenv("LLM_PROVIDER", "openai"))
-    model: str = Field(default_factory=lambda: os.getenv("LLM_MODEL", "gpt-4o"))
-    api_key: str = Field(default_factory=lambda: os.getenv("LLM_API_KEY", ""))
-    base_url: Optional[str] = Field(default_factory=lambda: os.getenv("LLM_BASE_URL", None))
-    temperature: float = 0.7
-    max_tokens: int = 4096
+# ===========================================
+# PATH CONFIGURATION
+# ===========================================
+
+def get_project_root() -> Path:
+    """Get project root directory."""
+    return Path(__file__).parent.parent.parent
+
+def get_workspace_dir() -> Path:
+    """Get workspace directory."""
+    return Path(os.getenv("WORKSPACE_DIR", get_project_root() / "workspace"))
+
+def get_data_dir() -> Path:
+    """Get data directory."""
+    return Path(os.getenv("DATA_DIR", get_project_root() / "data"))
+
+def get_cache_dir() -> Path:
+    """Get cache directory."""
+    return Path(os.getenv("CACHE_DIR", get_project_root() / ".cache"))
 
 
-class WorkspaceConfig(BaseModel):
-    """Workspace Configuration"""
-    root: Path = Field(default_factory=lambda: Path(__file__).parent.parent / "workspace")
-    projects_dir: Path = Field(default_factory=lambda: Path(__file__).parent.parent / "workspace" / "projects")
-    output_dir: Path = Field(default_factory=lambda: Path(__file__).parent.parent / "workspace" / "output")
+# ===========================================
+# AI CONFIGURATION
+# ===========================================
+
+class AIConfig(BaseModel):
+    """AI provider configuration."""
     
-    def __init__(self, **data):
-        super().__init__(**data)
-        self.root.mkdir(parents=True, exist_ok=True)
-        self.projects_dir.mkdir(parents=True, exist_ok=True)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-
-
-class EmailConfig(BaseModel):
-    """Email Configuration"""
-    smtp_host: str = Field(default_factory=lambda: os.getenv("SMTP_HOST", "smtp.gmail.com"))
-    smtp_port: int = Field(default_factory=lambda: int(os.getenv("SMTP_PORT", "587")))
-    smtp_user: str = Field(default_factory=lambda: os.getenv("SMTP_USER", ""))
-    smtp_password: str = Field(default_factory=lambda: os.getenv("SMTP_PASSWORD", ""))
-    from_name: str = Field(default_factory=lambda: os.getenv("EMAIL_FROM_NAME", "NanoCorp AI"))
-    use_tls: bool = True
-
-
-class SocialMediaConfig(BaseModel):
-    """Social Media Configuration"""
-    twitter_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("TWITTER_API_KEY", None))
-    twitter_api_secret: Optional[str] = Field(default_factory=lambda: os.getenv("TWITTER_API_SECRET", None))
-    linkedin_api_token: Optional[str] = Field(default_factory=lambda: os.getenv("LINKEDIN_API_TOKEN", None))
-
-
-class BusinessConfig(BaseModel):
-    """Business Configuration - Customize for your startup"""
-    company_name: str = Field(default_factory=lambda: os.getenv("COMPANY_NAME", "NanoCorp"))
-    company_description: str = "AI-powered autonomous business operating system"
-    industry: str = Field(default_factory=lambda: os.getenv("INDUSTRY", "Technology"))
-    target_market: str = Field(default_factory=lambda: os.getenv("TARGET_MARKET", "B2B SaaS"))
-    email_domain: str = Field(default_factory=lambda: os.getenv("EMAIL_DOMAIN", "nanocorp.io"))
+    provider: Literal["auto", "claude", "openai", "ollama"] = "auto"
+    model: str = "sonnet"
     
-    # Brand Guidelines
-    brand_name: str = "NanoCorp"
-    brand_voice: str = "Professional, innovative, approachable"
-    primary_color: str = "#2563EB"
-    secondary_color: str = "#10B981"
-
-
-class NanoCorpConfig(BaseModel):
-    """Main NanoCorp Configuration"""
-    version: str = "1.0.0"
-    created_at: datetime = Field(default_factory=datetime.now)
+    # API Keys (optional for free mode)
+    openai_api_key: Optional[str] = None
+    anthropic_api_key: Optional[str] = None
     
-    # Sub-configurations
-    llm: LLMConfig = Field(default_factory=LLMConfig)
-    workspace: WorkspaceConfig = Field(default_factory=WorkspaceConfig)
-    email: EmailConfig = Field(default_factory=EmailConfig)
-    social_media: SocialMediaConfig = Field(default_factory=SocialMediaConfig)
-    business: BusinessConfig = Field(default_factory=BusinessConfig)
+    # Free mode (CLI-based)
+    free_mode: bool = True
     
-    # Agent Settings
-    max_concurrent_workers: int = 5
-    task_timeout_seconds: int = 300
-    enable_browser: bool = True
-    debug_mode: bool = Field(default_factory=lambda: os.getenv("DEBUG", "false").lower() == "true")
+    # Provider priorities
+    provider_priority: List[str] = ["claude", "ollama", "openai"]
+
+
+# ===========================================
+# MCP CONFIGURATION  
+# ===========================================
+
+class MCPConfig(BaseModel):
+    """MCP (Model Context Protocol) configuration."""
     
-    class Config:
-        env_prefix = "NANOCORP_"
+    enabled: bool = False
+    servers: Dict[str, str] = Field(default_factory=dict)
+    stdio_timeout: int = 30
 
 
-# Global config instance
-config = NanoCorpConfig()
+# ===========================================
+# MEMORY CONFIGURATION
+# ===========================================
+
+class MemoryConfig(BaseModel):
+    """Memory and embedding configuration."""
+    
+    embedding_provider: Literal["sentence-transformers", "openai"] = "sentence-transformers"
+    embedding_model: str = "all-MiniLM-L6-v2"
+    openai_embedding_model: str = "text-embedding-3-small"
+    
+    chroma_host: str = "localhost"
+    chroma_port: int = 8000
+    chroma_persist_dir: Path = Field(default_factory=lambda: get_cache_dir() / "chromadb")
+    
+    max_entries: int = 10000
+    similarity_threshold: float = 0.3
+    cache_embeddings: bool = True
 
 
-def get_config() -> NanoCorpConfig:
-    """Get the global configuration instance"""
-    return config
+# ===========================================
+# INTEGRATIONS CONFIGURATION
+# ===========================================
+
+class IntegrationsConfig(BaseModel):
+    """Third-party integrations configuration."""
+    
+    github_token: Optional[str] = None
+    
+    smtp_host: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    smtp_username: Optional[str] = None
+    smtp_password: Optional[str] = None
+    email_from: str = "autopilot@nanocorp.ai"
+    
+    twitter_bearer_token: Optional[str] = None
+    discord_webhook: Optional[str] = None
+    slack_bot_token: Optional[str] = None
+    slack_channel: str = "#general"
+    
+    vercel_token: Optional[str] = None
+    netlify_token: Optional[str] = None
 
 
-def update_business_info(
-    company_name: str = None,
-    company_description: str = None,
-    industry: str = None,
-    target_market: str = None
-):
-    """Update business configuration"""
-    if company_name:
-        config.business.company_name = company_name
-    if company_description:
-        config.business.company_description = company_description
-    if industry:
-        config.business.industry = industry
-    if target_market:
-        config.business.target_market = target_market
+# ===========================================
+# SKILLS CONFIGURATION
+# ===========================================
+
+class SkillsConfig(BaseModel):
+    """Skills configuration."""
+    
+    enabled: bool = True
+    tavily_api_key: Optional[str] = None
+    linear_api_key: Optional[str] = None
+    notion_token: Optional[str] = None
+    notion_database_id: Optional[str] = None
+    datadog_api_key: Optional[str] = None
+    datadog_app_key: Optional[str] = None
+
+
+# ===========================================
+# EXECUTION CONFIGURATION
+# ===========================================
+
+class ExecutionConfig(BaseModel):
+    """Execution sandbox and worker configuration."""
+    
+    sandbox_enabled: bool = True
+    sandbox_timeout: int = 60
+    sandbox_memory_limit: str = "512mb"
+    sandbox_cpu_limit: int = 1
+    
+    max_workers: int = 10
+    worker_timeout: int = 300
+    
+    task_retry_count: int = 3
+    task_retry_delay: int = 5
+    
+    allowed_operations: List[str] = ["read", "write", "execute", "git", "http"]
+
+
+# ===========================================
+# API CONFIGURATION
+# ===========================================
+
+class APIConfig(BaseModel):
+    """REST API server configuration."""
+    
+    enabled: bool = False
+    host: str = "0.0.0.0"
+    port: int = 8000
+    api_key: Optional[str] = None
+    
+    ws_enabled: bool = False
+    ws_port: int = 8001
+    
+    cors_origins: List[str] = ["*"]
+    rate_limit: str = "100/minute"
+
+
+# ===========================================
+# LOGGING CONFIGURATION
+# ===========================================
+
+class LoggingConfig(BaseModel):
+    """Logging configuration."""
+    
+    level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+    format: Literal["json", "text"] = "text"
+    
+    file: Optional[Path] = None
+    max_size: str = "100MB"
+    backup_count: int = 5
+    
+    tracing_enabled: bool = False
+    tracing_endpoint: Optional[str] = None
+    metrics_enabled: bool = False
+
+
+# ===========================================
+# STORAGE CONFIGURATION
+# ===========================================
+
+class StorageConfig(BaseModel):
+    """Storage paths configuration."""
+    
+    workspace_dir: Path = Field(default_factory=get_workspace_dir)
+    data_dir: Path = Field(default_factory=get_data_dir)
+    cache_dir: Path = Field(default_factory=get_cache_dir)
+
+
+# ===========================================
+# PROFILES
+# ===========================================
+
+class ProfilesConfig(BaseModel):
+    """Feature profiles."""
+    
+    environment: Literal["development", "testing", "production"] = "development"
+    
+    profile_memory: bool = True
+    profile_mcp: bool = True
+    profile_skills: bool = True
+    profile_api: bool = False
+    
+    debug: bool = False
+    verbose: bool = False
+    reload: bool = False
+
+
+# ===========================================
+# MAIN CONFIGURATION
+# ===========================================
+
+class Config(BaseSettings):
+    """
+    Main NanoCorp v3.0 configuration.
+    
+    Loads from environment variables with .env file support.
+    """
+    
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        env_nested_delimiter="__",
+        case_sensitive=False,
+        extra="ignore"
+    )
+    
+    ai: AIConfig = Field(default_factory=AIConfig)
+    mcp: MCPConfig = Field(default_factory=MCPConfig)
+    memory: MemoryConfig = Field(default_factory=MemoryConfig)
+    integrations: IntegrationsConfig = Field(default_factory=IntegrationsConfig)
+    skills: SkillsConfig = Field(default_factory=SkillsConfig)
+    execution: ExecutionConfig = Field(default_factory=ExecutionConfig)
+    api: APIConfig = Field(default_factory=APIConfig)
+    logging: LoggingConfig = Field(default_factory=LoggingConfig)
+    storage: StorageConfig = Field(default_factory=StorageConfig)
+    profiles: ProfilesConfig = Field(default_factory=ProfilesConfig)
+    
+    version: str = "3.0.0"
+
+
+@lru_cache()
+def _get_config_instance() -> Config:
+    """Get cached config instance."""
+    return Config()
+
+
+def get_config() -> Config:
+    """Get the global configuration instance."""
+    return _get_config_instance()
+
+
+# Convenience alias
+config = _get_config_instance()
+
+
+# Legacy compatibility
+NanoCorpConfig = Config

@@ -1,24 +1,40 @@
-"""Configuration module for NanoCorp"""
+"""
+Configuration module for NanoCorp v3.0
+"""
 from .settings import (
-    config,
+    Config,
     get_config,
-    update_business_info,
+    config,
     NanoCorpConfig,
-    LLMConfig,
-    WorkspaceConfig,
-    EmailConfig,
-    SocialMediaConfig,
-    BusinessConfig,
+    AIConfig,
+    MCPConfig,
+    MemoryConfig,
+    IntegrationsConfig,
+    SkillsConfig,
+    ExecutionConfig,
+    APIConfig,
+    LoggingConfig,
+    StorageConfig,
+    ProfilesConfig,
 )
 
+# Module reference for convenience
+settings = Config
+
 __all__ = [
+    "Config",
+    "get_config", 
     "config",
-    "get_config",
-    "update_business_info",
     "NanoCorpConfig",
-    "LLMConfig",
-    "WorkspaceConfig",
-    "EmailConfig",
-    "SocialMediaConfig",
-    "BusinessConfig",
+    "AIConfig",
+    "MCPConfig",
+    "MemoryConfig",
+    "IntegrationsConfig",
+    "SkillsConfig",
+    "ExecutionConfig",
+    "APIConfig",
+    "LoggingConfig",
+    "StorageConfig",
+    "ProfilesConfig",
+    "settings",
 ]

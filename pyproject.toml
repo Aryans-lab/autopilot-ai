@@ -1,0 +1,150 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "autopilot-ai"
+version = "3.0.0"
+description = "The Ultimate Autonomous AI Agent System - Build and run your business with AI"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "NanoCorp Team", email = "team@nanocorp.ai" }
+]
+keywords = [
+    "ai", "agents", "autonomous", "startup", "business", 
+    "llm", "gpt", "claude", "multi-agent", "automation"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Business",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Office/Business",
+    "Artificial Intelligence",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "aiohttp>=3.9.0",
+    "requests>=2.31.0",
+    "httpx>=0.25.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+# Full features
+full = [
+    "openhands-sdk>=0.2.0",
+    "sentence-transformers>=2.2.0",
+    "chromadb>=0.4.0",
+]
+# Development
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+    "mypy>=1.5.0",
+    "black>=23.0.0",
+    "ipython>=8.0.0",
+]
+# API server
+api = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.0",
+    "websockets>=11.0.0",
+]
+# Skills
+skills = [
+    "tavily-python>=0.3.0",
+]
+# All
+all = [
+    "autopilot-ai[full,dev,api,skills]",
+]
+
+[project.urls]
+Homepage = "https://github.com/Aryans-lab/autopilot-ai"
+Documentation = "https://github.com/Aryans-lab/autopilot-ai#readme"
+Repository = "https://github.com/Aryans-lab/autopilot-ai"
+Issues = "https://github.com/Aryans-lab/autopilot-ai/issues"
+Changelog = "https://github.com/Aryans-lab/autopilot-ai/releases"
+
+[project.scripts]
+autopilot = "nanocorp.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["nanocorp"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/nanocorp",
+    "/README.md",
+    "/LICENSE",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+addopts = "-v --cov=nanocorp --cov-report=term-missing --cov-report=html"
+
+[tool.coverage.run]
+source = ["nanocorp"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "B008",  # do not perform function calls in argument defaults
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/*" = ["B008", "E501"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = false
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+exclude = ["tests/", "docs/"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+include = '\.pyi?$'
