@@ -28,20 +28,38 @@ def get_result_text(result):
     if not result:
         return "No result"
     
-    # Handle AIResponse objects
+    # Handle AIResponse objects directly
     if hasattr(result, 'content'):
-        return result.content[:500]
-    elif isinstance(result, dict):
-        if result.get('result') and hasattr(result['result'], 'content'):
-            return result['result'].content[:500]
-        elif result.get('results'):
-            return str(result['results'])[:500]
-        elif result.get('content'):
-            return str(result['content'])[:500]
-        else:
-            return str(result)[:500]
-    else:
+        content = result.content
+        if isinstance(content, str):
+            return content[:500]
+    
+    # Handle dict
+    if isinstance(result, dict):
+        # Check 'content' key first (common in task results)
+        if 'content' in result:
+            val = result['content']
+            if hasattr(val, 'content') and isinstance(val.content, str):
+                return val.content[:500]
+            elif isinstance(val, str):
+                return val[:500]
+        
+        # Check 'result' key
+        if 'result' in result:
+            val = result['result']
+            if hasattr(val, 'content') and isinstance(val.content, str):
+                return val.content[:500]
+            elif isinstance(val, str):
+                return val[:500]
+        
+        # Success with saved file
+        if result.get('success') and result.get('saved_to'):
+            return f"Saved to {result['saved_to']}"
+        
+        # Fallback
         return str(result)[:500]
+    
+    return str(result)[:500]
 
 
 async def main():
