@@ -6,295 +6,294 @@
     <title>NanoCorp - AI Operating System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        
         :root {
-            --bg-primary: #09090b;
-            --bg-secondary: #18181b;
-            --bg-tertiary: #27272a;
-            --accent-primary: #6366f1;
-            --accent-secondary: #8b5cf6;
-            --accent-tertiary: #06b6d4;
-            --accent-success: #10b981;
-            --accent-warning: #f59e0b;
-            --accent-danger: #ef4444;
-            --accent-pink: #ec4899;
-            --text-primary: #fafafa;
-            --text-secondary: #a1a1aa;
-            --text-tertiary: #71717a;
-            --border: rgba(255,255,255,0.08;
+            --bg: #09090b;
+            --bg2: #18181b;
+            --bg3: #27272a;
+            --accent: #6366f1;
+            --accent2: #8b5cf6;
+            --cyan: #06b6d4;
+            --green: #10b981;
+            --amber: #f59e0b;
+            --red: #ef4444;
+            --pink: #ec4899;
+            --text: #fafafa;
+            --text2: #a1a1aa;
+            --text3: #71717a;
+            --border: rgba(255,255,255,0.06);
         }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+        ::selection { background: var(--accent); }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-primary;
-            color: var(--text-primary;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--bg-tertiary; border-radius: 3px; }
-        ::selection { background: var(--accent-primary; color: white; }
-
-        /* Background */
-        .bg-effects { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-        .bg-gradient { position: absolute; width: 800px; height: 800px; border-radius: 50%; filter: blur(150px; opacity: 0.15; animation: float 20s ease-in-out infinite; }
-        .bg-1 { top: -400px; left: -200px; background: var(--accent-primary; }
-        .bg-2 { bottom: -400px; right: -200px; background: var(--accent-pink; opacity: 0.1; }
-        .bg-3 { top: 50%; left: 50%; transform: translate(-50%,-50%; background: var(--accent-tertiary; opacity: 0.05; width: 1200px; height: 1200px; }
-        .bg-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px; background-size: 60px 60px; }
-        @keyframes float { 0%,100% { transform: translate(0,0) scale(1; } 33% { transform: translate(30px,-30px) scale(1.05; } 66% { transform: translate(-20px,20px) scale(0.95; } }
+        /* Canvas Layers */
+        #particles, #neural { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
 
         /* Layout */
-        .app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
-        
+        .app { position: relative; z-index: 1; height: 100vh; display: flex; flex-direction: column; }
+
         /* Header */
-        .header { height: 64px; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border; background: rgba(9,9,11,0.8; backdrop-filter: blur(20px; position: sticky; top: 0; z-index: 100; }
-        .header-left, .header-right { display: flex; align-items: center; gap: 16px; }
-        .logo { display: flex; align-items: center; gap: 12px; }
-        .logo svg { width: 36px; height: 36px; }
-        .logo-text { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .nav { display: flex; gap: 4px; }
-        .nav-item { padding: 8px 16px; font-size: 14px; font-weight: 500; color: var(--text-secondary; border-radius: 8px; cursor: pointer; transition: all 0.15s; }
-        .nav-item:hover { color: var(--text-primary; background: var(--bg-secondary; }
-        .nav-item.active { color: var(--text-primary; background: var(--bg-secondary; }
-        .status-badge { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(16,185,129,0.1; border: 1px solid rgba(16,185,129,0.2; border-radius: 9999px; }
-        .status-dot { width: 8px; height: 8px; background: var(--accent-success; border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
-        @keyframes pulse { 0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16,185,129,0.4; } 50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(16,185,129,0; } }
-        .status-text { font-size: 12px; font-weight: 600; color: var(--accent-success; text-transform: uppercase; letter-spacing: 0.5px; }
-        .time { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-tertiary; }
-        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; font-size: 14px; font-weight: 500; border-radius: 8px; border: none; cursor: pointer; transition: all 0.15s; text-decoration: none; }
-        .btn-primary { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary); color: white; box-shadow: 0 4px 15px rgba(99,102,241,0.3; }
-        .btn-primary:hover { transform: translateY(-1px; box-shadow: 0 6px 20px rgba(99,102,241,0.4; }
-        .btn-secondary { background: var(--bg-secondary; color: var(--text-primary; border: 1px solid var(--border; }
-        .btn-secondary:hover { background: var(--bg-tertiary; }
-        .btn-icon { width: 36px; height: 36px; padding: 0; background: var(--bg-secondary; border: 1px solid var(--border; color: var(--text-secondary; border-radius: 8px; }
-        .btn-icon:hover { background: var(--bg-tertiary; color: var(--text-primary; }
+        .header { height: 56px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: rgba(9,9,11,0.9); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100; }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo svg { width: 32px; height: 32px; }
+        .logo-text { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent2), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav { display: flex; gap: 4px; margin-left: 40px; }
+        .nav-item { padding: 6px 12px; font-size: 13px; font-weight: 500; color: var(--text2); border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+        .nav-item:hover { color: var(--text); background: var(--bg2); }
+        .nav-item.active { color: var(--text); background: var(--bg2); }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .status { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); border-radius: 999px; }
+        .status-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .status-text { font-size: 11px; font-weight: 600; color: var(--green); text-transform: uppercase; }
+        .time { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text3); }
+        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 13px; font-weight: 500; border-radius: 6px; border: none; cursor: pointer; transition: all 0.15s; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(99,102,241,0.3); }
+        .btn-secondary { background: var(--bg2); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--bg3); }
+        .btn-icon { width: 32px; height: 32px; padding: 0; background: var(--bg2); border: 1px solid var(--border); color: var(--text2); border-radius: 6px; }
+        .btn-icon:hover { color: var(--text); }
 
         /* Main Grid */
-        .main { flex: 1; display: grid; grid-template-columns: 280px 1fr 320px; gap: 16px; padding: 16px 24px; height: calc(100vh - 64px; }
+        .main { flex: 1; display: grid; grid-template-columns: 260px 1fr 300px; gap: 12px; padding: 12px 20px; overflow: hidden; }
 
         /* Panels */
-        .panel { background: rgba(24,24,27,0.6; border: 1px solid var(--border; border-radius: 16px; backdrop-filter: blur(20px; display: flex; flex-direction: column; overflow: hidden; }
-        .panel-header { padding: 16px 20px; border-bottom: 1px solid var(--border; display: flex; align-items: center; justify-content: space-between; }
-        .panel-title { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-secondary; text-transform: uppercase; letter-spacing: 1px; }
-        .panel-badge { font-size: 11px; font-weight: 600; padding: 4px 10px; background: rgba(99,102,241,0.15; color: var(--accent-primary; border-radius: 9999px; }
-        .panel-content { flex: 1; padding: 16px; overflow-y: auto; }
+        .panel { background: rgba(24,24,27,0.7); border: 1px solid var(--border); border-radius: 12px; backdrop-filter: blur(20px); display: flex; flex-direction: column; overflow: hidden; }
+        .panel-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .panel-title { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
+        .panel-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; background: rgba(99,102,241,0.15); color: var(--accent); border-radius: 999px; }
+        .panel-content { flex: 1; padding: 12px; overflow-y: auto; }
 
         /* Agent Cards */
-        .agent-list { display: flex; flex-direction: column; gap: 8px; }
-        .agent-card { padding: 12px 16px; background: var(--bg-secondary; border: 1px solid var(--border; border-radius: 12px; cursor: pointer; transition: all 0.15s; position: relative; overflow: hidden; }
-        .agent-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent-primary; opacity: 0; transition: opacity 0.15s; }
-        .agent-card:hover { background: var(--bg-tertiary; border-color: rgba(255,255,255,0.12; transform: translateX(4px; }
+        .agent-list { display: flex; flex-direction: column; gap: 6px; }
+        .agent-card { padding: 10px 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.15s; position: relative; }
+        .agent-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--accent); opacity: 0; transition: opacity 0.15s; }
+        .agent-card:hover { background: var(--bg3); transform: translateX(3px); }
         .agent-card:hover::before { opacity: 1; }
-        .agent-card.active { background: rgba(99,102,241,0.1; border-color: var(--accent-primary; box-shadow: 0 0 20px rgba(99,102,241,0.1; }
+        .agent-card.active { background: rgba(99,102,241,0.1); border-color: var(--accent); }
         .agent-card.active::before { opacity: 1; }
-        .agent-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-        .agent-name { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; color: var(--text-primary; }
-        .agent-status { width: 10px; height: 10px; border-radius: 50%; background: var(--text-tertiary; }
-        .agent-status.online { background: var(--accent-success; box-shadow: 0 0 10px var(--accent-success; }
-        .agent-status.busy { background: var(--accent-warning; box-shadow: 0 0 10px var(--accent-warning; animation: pulse 1s ease-in-out infinite; }
-        .agent-type { font-size: 11px; font-weight: 500; color: var(--accent-primary; text-transform: uppercase; letter-spacing: 0.5px; }
-        .agent-task { font-size: 12px; color: var(--text-tertiary; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .agent-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .agent-name { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; }
+        .agent-status { width: 8px; height: 8px; border-radius: 50%; background: var(--text3); }
+        .agent-status.online { background: var(--green); box-shadow: 0 0 8px var(--green); }
+        .agent-status.busy { background: var(--amber); box-shadow: 0 0 8px var(--amber); animation: pulse 1s infinite; }
+        .agent-type { font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
+        .agent-task { font-size: 11px; color: var(--text3); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Hero Section */
-        .hero { padding: 32px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary); border-radius: 16px; position: relative; overflow: hidden; }
-        .hero::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"; }
+        /* Hero */
+        .hero { padding: 20px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 12px; position: relative; overflow: hidden; margin-bottom: 12px; }
+        .hero::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
         .hero-content { position: relative; z-index: 1; }
-        .hero-badge { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; background: rgba(255,255,255,0.2; border-radius: 9999px; font-size: 12px; font-weight: 600; color: white; margin-bottom: 16px; }
-        .hero-title { font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700; color: white; line-height: 1.2; margin-bottom: 8px; }
-        .hero-subtitle { font-size: 15px; color: rgba(255,255,255,0.8; max-width: 500px; }
+        .hero-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(255,255,255,0.2); border-radius: 999px; font-size: 11px; font-weight: 600; color: white; margin-bottom: 10px; }
+        .hero-title { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: white; line-height: 1.2; margin-bottom: 6px; }
+        .hero-subtitle { font-size: 13px; color: rgba(255,255,255,0.75); max-width: 400px; }
 
-        /* Command Box */
-        .command-box { background: var(--bg-secondary; border-radius: 16px; padding: 20px; }
-        .command-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-        .command-icon { width: 40px; height: 40px; background: rgba(99,102,241,0.15; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-        .command-title { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 600; color: var(--text-primary; }
-        .command-subtitle { font-size: 12px; color: var(--text-tertiary; }
-        .command-input-wrapper { position: relative; }
-        .command-input { width: 100%; padding: 16px; padding-left: 48px; background: var(--bg-primary; border: 1px solid var(--border; border-radius: 12px; color: var(--text-primary; font-size: 15px; outline: none; transition: all 0.15s; }
-        .command-input:focus { border-color: var(--accent-primary; box-shadow: 0 0 0 3px rgba(99,102,241,0.15; }
-        .command-input::placeholder { color: var(--text-tertiary; }
-        .command-prefix { position: absolute; left: 16px; top: 50%; transform: translateY(-50%; font-family: 'JetBrains Mono', monospace; font-size: 16px; color: var(--accent-primary; }
-        .command-actions { display: flex; gap: 8px; margin-top: 16px; }
+        /* Command */
+        .command-box { background: var(--bg2); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+        .command-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .command-icon { width: 32px; height: 32px; background: rgba(99,102,241,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .command-title { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600; }
+        .command-subtitle { font-size: 11px; color: var(--text3); }
+        .command-input-wrap { position: relative; }
+        .command-input { width: 100%; padding: 10px 12px 10px 36px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; outline: none; transition: all 0.15s; }
+        .command-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+        .command-input::placeholder { color: var(--text3); }
+        .command-prefix { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+        .command-actions { display: flex; gap: 8px; margin-top: 10px; }
 
         /* Quick Actions */
-        .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr; gap: 12px; margin-top: 16px; }
-        .quick-action { padding: 16px; background: var(--bg-secondary; border: 1px solid var(--border; border-radius: 12px; text-align: center; cursor: pointer; transition: all 0.15s; }
-        .quick-action:hover { background: var(--bg-tertiary; border-color: var(--accent-primary; transform: translateY(-2px; box-shadow: 0 4px 20px rgba(99,102,241,0.15; }
-        .quick-action-icon { font-size: 28px; margin-bottom: 8px; }
-        .quick-action-text { font-size: 12px; font-weight: 600; color: var(--text-secondary; text-transform: uppercase; letter-spacing: 0.5px; }
+        .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+        .quick-action { padding: 12px 8px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.15s; }
+        .quick-action:hover { background: var(--bg3); border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(99,102,241,0.15); }
+        .quick-action-icon { font-size: 22px; margin-bottom: 4px; }
+        .quick-action-text { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Terminal */
+        .terminal { background: #000; border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+        .terminal-header { padding: 8px 12px; background: #1a1a1a; display: flex; align-items: center; gap: 6px; }
+        .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .terminal-dot.red { background: #ff5f56; }
+        .terminal-dot.yellow { background: #ffbd2e; }
+        .terminal-dot.green { background: #27c93f; }
+        .terminal-body { padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; height: 150px; overflow-y: auto; }
+        .terminal-line { color: #888; margin-bottom: 4px; }
+        .terminal-line::before { content: '$ '; color: var(--green); }
+        .terminal-line.success { color: var(--green); }
+        .terminal-line.error { color: var(--red); }
+        .terminal-output { color: #aaa; margin-bottom: 4px; padding-left: 12px; border-left: 2px solid var(--border); margin-left: 8px; }
 
         /* Feed */
-        .feed { background: var(--bg-secondary; border-radius: 16px; padding: 20px; margin-top: 16px; }
-        .feed-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-        .feed-title { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; color: var(--text-primary; }
-        .feed-filters { display: flex; gap: 8px; }
-        .feed-filter { padding: 4px 12px; font-size: 11px; font-weight: 600; color: var(--text-tertiary; background: transparent; border: 1px solid var(--border; border-radius: 9999px; cursor: pointer; transition: all 0.15s; }
-        .feed-filter:hover, .feed-filter.active { background: var(--accent-primary; border-color: var(--accent-primary; color: white; }
-        .feed-items { display: flex; flex-direction: column; gap: 12px; max-height: 280px; overflow-y: auto; }
-        .feed-item { padding: 12px; background: var(--bg-primary; border-radius: 8px; border-left: 3px solid var(--accent-primary; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px; } to { opacity: 1; transform: translateY(0; } }
-        .feed-item.success { border-left-color: var(--accent-success; }
-        .feed-item.warning { border-left-color: var(--accent-warning; }
-        .feed-item.error { border-left-color: var(--accent-danger; }
-        .feed-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-        .feed-item-agent { font-size: 11px; font-weight: 600; color: var(--accent-primary; text-transform: uppercase; }
-        .feed-item-time { font-size: 10px; color: var(--text-tertiary; font-family: 'JetBrains Mono', monospace; }
-        .feed-item-content { font-size: 13px; color: var(--text-secondary; }
+        .feed { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+        .feed-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .feed-title { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600; }
+        .feed-filters { display: flex; gap: 6px; }
+        .feed-filter { padding: 4px 10px; font-size: 10px; font-weight: 600; color: var(--text3); background: transparent; border: 1px solid var(--border); border-radius: 999px; cursor: pointer; transition: all 0.15s; }
+        .feed-filter:hover, .feed-filter.active { background: var(--accent); border-color: var(--accent); color: white; }
+        .feed-items { flex: 1; overflow-y: auto; }
+        .feed-item { padding: 10px; background: var(--bg2); border-radius: 8px; margin-bottom: 6px; border-left: 3px solid var(--accent); animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; } }
+        .feed-item.success { border-left-color: var(--green); }
+        .feed-item.warning { border-left-color: var(--amber); }
+        .feed-item.error { border-left-color: var(--red); }
+        .feed-item-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .feed-item-agent { font-size: 10px; font-weight: 600; color: var(--accent); text-transform: uppercase; }
+        .feed-item-time { font-size: 10px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+        .feed-item-content { font-size: 12px; color: var(--text2); }
 
-        /* Stats */
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr; gap: 12px; margin-bottom: 16px; }
-        .stat-card { padding: 16px; background: var(--bg-secondary; border: 1px solid var(--border; border-radius: 12px; text-align: center; }
-        .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; margin-bottom: 4px; }
-        .stat-label { font-size: 11px; color: var(--text-tertiary; text-transform: uppercase; letter-spacing: 0.5px; }
+        /* Right Panel Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+        .stat-card { padding: 12px; background: var(--bg2); border-radius: 8px; text-align: center; }
+        .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; margin-top: 2px; }
+
+        /* Chart */
+        .chart-section { background: var(--bg2); border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+        .chart-title { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; margin-bottom: 10px; }
+        .chart-container { height: 120px; }
 
         /* Progress Ring */
-        .progress-section { background: var(--bg-secondary; border-radius: 16px; padding: 20px; margin-bottom: 16px; text-align: center; }
-        .progress-ring { width: 140px; height: 140px; margin: 0 auto 16px; position: relative; }
-        .progress-ring svg { transform: rotate(-90deg; }
-        .progress-ring-bg { fill: none; stroke: var(--bg-tertiary; stroke-width: 10; }
-        .progress-ring-fill { fill: none; stroke: url(#gradient; stroke-width: 10; stroke-linecap: round; stroke-dasharray: 377; stroke-dashoffset: 113; transition: stroke-dashoffset 1s ease; }
-        .progress-ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%; text-align: center; }
-        .progress-ring-value { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; color: var(--text-primary; }
-        .progress-ring-label { font-size: 11px; color: var(--text-tertiary; text-transform: uppercase; }
-        .progress-title { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; color: var(--text-primary; }
+        .progress-section { background: var(--bg2); border-radius: 10px; padding: 14px; text-align: center; margin-bottom: 12px; }
+        .progress-ring { width: 100px; height: 100px; margin: 0 auto 10px; position: relative; }
+        .progress-ring svg { transform: rotate(-90deg); }
+        .progress-ring-bg { fill: none; stroke: var(--bg3); stroke-width: 8; }
+        .progress-ring-fill { fill: none; stroke: url(#grad); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 251; stroke-dashoffset: 75; transition: stroke-dashoffset 1s ease; }
+        .progress-ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+        .progress-ring-value { font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 700; color: var(--text); }
+        .progress-title { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; }
 
-        /* Memory & Health */
-        .memory-section, .health-section { background: var(--bg-secondary; border-radius: 16px; padding: 20px; margin-bottom: 16px; }
-        .section-title { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-tertiary; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
-        .memory-bars { display: flex; flex-direction: column; gap: 12px; }
-        .memory-bar-item { display: flex; align-items: center; gap: 12px; }
-        .memory-bar-label { width: 70px; font-size: 11px; color: var(--text-tertiary; }
-        .memory-bar-track { flex: 1; height: 8px; background: var(--bg-tertiary; border-radius: 9999px; overflow: hidden; }
-        .memory-bar-fill { height: 100%; border-radius: 9999px; transition: width 1s ease; }
-        .memory-bar-fill.primary { background: var(--accent-primary; }
-        .memory-bar-fill.success { background: var(--accent-success; }
-        .memory-bar-fill.warning { background: var(--accent-warning; }
-        .memory-bar-fill.pink { background: var(--accent-pink; }
-        .memory-bar-value { width: 35px; font-size: 11px; font-weight: 600; color: var(--text-secondary; text-align: right; }
-        .health-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border; }
+        /* Memory */
+        .memory-section { background: var(--bg2); border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+        .section-title { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; margin-bottom: 10px; }
+        .memory-bars { display: flex; flex-direction: column; gap: 8px; }
+        .memory-bar { display: flex; align-items: center; gap: 8px; }
+        .memory-bar-label { width: 60px; font-size: 10px; color: var(--text3); }
+        .memory-bar-track { flex: 1; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+        .memory-bar-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+        .memory-bar-fill.primary { background: var(--accent); }
+        .memory-bar-fill.success { background: var(--green); }
+        .memory-bar-fill.warning { background: var(--amber); }
+        .memory-bar-fill.pink { background: var(--pink); }
+        .memory-bar-value { width: 30px; font-size: 10px; font-weight: 600; color: var(--text2); text-align: right; }
+
+        /* Health */
+        .health-section { background: var(--bg2); border-radius: 10px; padding: 12px; }
+        .health-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
         .health-row:last-child { border-bottom: none; }
-        .health-label { font-size: 13px; color: var(--text-secondary; }
-        .health-value { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: var(--accent-success; }
+        .health-label { font-size: 12px; color: var(--text2); }
+        .health-value { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--green); }
 
-        /* Command Palette */
-        .command-palette { position: fixed; top: 20%; left: 50%; transform: translateX(-50%; width: 560px; max-height: 400px; background: rgba(24,24,27,0.95; border: 1px solid var(--border; border-radius: 16px; box-shadow: 0 20px 25px rgba(0,0,0,0.5), 0 0 100px rgba(99,102,241,0.2; backdrop-filter: blur(30px; z-index: 1000; display: none; overflow: hidden; }
-        .command-palette.active { display: block; animation: paletteIn 0.2s ease; }
-        @keyframes paletteIn { from { opacity: 0; transform: translateX(-50%) scale(0.95; } to { opacity: 1; transform: translateX(-50%) scale(1; } }
-        .palette-input-wrapper { padding: 16px; border-bottom: 1px solid var(--border; }
-        .palette-input { width: 100%; padding: 12px; background: transparent; border: none; color: var(--text-primary; font-size: 16px; outline: none; }
-        .palette-input::placeholder { color: var(--text-tertiary; }
-        .palette-results { max-height: 320px; overflow-y: auto; padding: 8px; }
-        .palette-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; cursor: pointer; transition: background 0.15s; }
-        .palette-item:hover { background: var(--bg-tertiary; }
-        .palette-item-icon { width: 32px; height: 32px; background: rgba(99,102,241,0.15; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-        .palette-item-content { flex: 1; }
-        .palette-item-title { font-size: 14px; font-weight: 500; color: var(--text-primary; }
-        .palette-item-desc { font-size: 12px; color: var(--text-tertiary; }
-        .palette-item-shortcut { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 4px 8px; background: var(--bg-tertiary; border-radius: 4px; color: var(--text-tertiary; }
+        /* Palette */
+        .palette { position: fixed; top: 15%; left: 50%; transform: translateX(-50%); width: 500px; max-height: 350px; background: rgba(24,24,27,0.98); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 80px rgba(99,102,241,0.15); backdrop-filter: blur(30px); z-index: 1000; display: none; overflow: hidden; }
+        .palette.active { display: block; animation: popIn 0.2s ease; }
+        @keyframes popIn { from { opacity: 0; transform: translateX(-50%) scale(0.95); } to { opacity: 1; } }
+        .palette-input { width: 100%; padding: 14px 16px; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 15px; outline: none; }
+        .palette-input::placeholder { color: var(--text3); }
+        .palette-results { max-height: 280px; overflow-y: auto; padding: 8px; }
+        .palette-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 6px; cursor: pointer; transition: background 0.1s; }
+        .palette-item:hover { background: var(--bg3); }
+        .palette-icon { width: 28px; height: 28px; background: rgba(99,102,241,0.15); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+        .palette-content { flex: 1; }
+        .palette-title { font-size: 13px; font-weight: 500; }
+        .palette-desc { font-size: 11px; color: var(--text3); }
+        .palette-shortcut { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 2px 6px; background: var(--bg3); border-radius: 4px; color: var(--text3); }
 
         /* Toast */
-        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 1001; display: flex; flex-direction: column; gap: 12px; }
-        .toast { display: flex; align-items: center; gap: 12px; padding: 16px; background: rgba(24,24,27,0.95; border: 1px solid var(--border; border-radius: 12px; box-shadow: 0 10px 15px rgba(0,0,0,0.5; backdrop-filter: blur(20px; min-width: 300px; animation: toastIn 0.3s ease; }
-        @keyframes toastIn { from { opacity: 0; transform: translateX(100px; } to { opacity: 1; transform: translateX(0; } }
-        .toast.success { border-color: var(--accent-success; }
-        .toast.error { border-color: var(--accent-danger; }
-        .toast-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-        .toast.success .toast-icon { background: rgba(16,185,129,0.15; color: var(--accent-success; }
-        .toast.error .toast-icon { background: rgba(239,68,68,0.15; color: var(--accent-danger; }
+        .toasts { position: fixed; bottom: 20px; right: 20px; z-index: 1001; display: flex; flex-direction: column; gap: 8px; }
+        .toast { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: rgba(24,24,27,0.98); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); backdrop-filter: blur(20px); min-width: 280px; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; } }
+        .toast.success { border-color: var(--green); }
+        .toast.error { border-color: var(--red); }
+        .toast-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .toast.success .toast-icon { background: rgba(16,185,129,0.15); color: var(--green); }
+        .toast.error .toast-icon { background: rgba(239,68,68,0.15); color: var(--red); }
         .toast-content { flex: 1; }
-        .toast-title { font-size: 14px; font-weight: 600; color: var(--text-primary; }
-        .toast-message { font-size: 12px; color: var(--text-tertiary; margin-top: 2px; }
+        .toast-title { font-size: 13px; font-weight: 600; }
+        .toast-msg { font-size: 11px; color: var(--text3); }
 
-        /* Responsive */
-        @media (max-width: 1024px) { .main { grid-template-columns: 1fr; } .panel:not(.main-panel) { display: none; } .quick-actions { grid-template-columns: repeat(2, 1fr; } }
+        /* Neural Network Viz */
+        #neural { z-index: 0; opacity: 0.4; }
+
+        @media (max-width: 1024px) { .main { grid-template-columns: 1fr; } .panel:not(.center) { display: none; } }
     </style>
 </head>
 <body>
-    <div class="bg-effects">
-        <div class="bg-gradient bg-1"></div>
-        <div class="bg-gradient bg-2"></div>
-        <div class="bg-gradient bg-3"></div>
-        <div class="bg-grid"></div>
-    </div>
+    <canvas id="particles"></canvas>
+    <canvas id="neural"></canvas>
 
-    <div class="command-palette" id="commandPalette">
-        <div class="palette-input-wrapper">
-            <input type="text" class="palette-input" placeholder="Search commands..." id="paletteInput">
-        </div>
+    <div class="palette" id="palette">
+        <input type="text" class="palette-input" placeholder="Search commands..." id="paletteInput">
         <div class="palette-results" id="paletteResults"></div>
     </div>
 
-    <div class="toast-container" id="toastContainer"></div>
+    <div class="toasts" id="toasts"></div>
 
     <div class="app">
         <header class="header">
             <div class="header-left">
                 <div class="logo">
-                    <svg viewBox="0 0 36 36" fill="none">
+                    <svg viewBox="0 0 32 32" fill="none">
                         <defs>
-                            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" style="stop-color:#6366f1"/>
                                 <stop offset="50%" style="stop-color:#8b5cf6"/>
                                 <stop offset="100%" style="stop-color:#06b6d4"/>
                             </linearGradient>
                         </defs>
-                        <path d="M18 2L32 10V26L18 34L4 26V10L18 2Z" stroke="url(#logoGrad)" stroke-width="2" fill="none"/>
-                        <circle cx="18" cy="18" r="6" fill="url(#logoGrad)"/>
+                        <path d="M16 2L28 9V23L16 30L4 23V9L16 2Z" stroke="url(#g)" stroke-width="2" fill="none"/>
+                        <circle cx="16" cy="16" r="5" fill="url(#g)"/>
                     </svg>
                     <span class="logo-text">NanoCorp</span>
                 </div>
                 <nav class="nav">
                     <a class="nav-item active">Dashboard</a>
                     <a class="nav-item">Agents</a>
-                    <a class="nav-item">Tasks</a>
+                    <a class="nav-item">Analytics</a>
                     <a class="nav-item">Memory</a>
-                    <a class="nav-item">Settings</a>
                 </nav>
             </div>
             <div class="header-right">
-                <div class="status-badge">
+                <div class="status">
                     <div class="status-dot"></div>
-                    <span class="status-text">System Online</span>
+                    <span class="status-text">Online</span>
                 </div>
-                <span class="time" id="headerTime">00:00:00</span>
-                <button class="btn-icon" title="Notifications">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                <span class="time" id="time">00:00:00</span>
+                <button class="btn-icon" title="Settings">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                     </svg>
                 </button>
                 <button class="btn btn-primary">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     New Task
                 </button>
             </div>
         </header>
 
         <main class="main">
+            <!-- Left - Agents -->
             <div class="panel">
                 <div class="panel-header">
                     <span class="panel-title">Agent Workforce</span>
-                    <span class="panel-badge">9 Active</span>
+                    <span class="panel-badge">8 Active</span>
                 </div>
                 <div class="panel-content">
-                    <div class="agent-list" id="agentList"></div>
+                    <div class="agent-list" id="agents"></div>
                 </div>
             </div>
 
-            <div class="panel main-panel">
-                <div class="panel-content" style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- Center -->
+            <div class="panel center">
+                <div class="panel-content" style="display: flex; flex-direction: column; gap: 12px;">
                     <div class="hero">
                         <div class="hero-content">
-                            <div class="hero-badge"><span>⚡</span><span>Powered by AI Agents</span></div>
+                            <div class="hero-badge"><span>⚡</span><span>AI-Powered</span></div>
                             <h1 class="hero-title">Build Your Empire<br>with Autonomous AI</h1>
-                            <p class="hero-subtitle">Deploy specialized AI agents to code, design, research, and market your startup—all coordinated by your personal CEO agent.</p>
+                            <p class="hero-subtitle">Deploy specialized AI agents to code, design, research, and market—all coordinated by your CEO.</p>
                         </div>
                     </div>
 
@@ -306,19 +305,16 @@
                                 <div class="command-subtitle">Give instructions to your AI workforce</div>
                             </div>
                         </div>
-                        <div class="command-input-wrapper">
+                        <div class="command-input-wrap">
                             <span class="command-prefix">›</span>
-                            <input type="text" class="command-input" placeholder="What would you like to build today?" id="commandInput">
+                            <input type="text" class="command-input" placeholder="What would you like to build?" id="cmdInput">
                         </div>
                         <div class="command-actions">
-                            <button class="btn btn-primary" onclick="submitCommand()">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                                Execute Task
+                            <button class="btn btn-primary" onclick="executeCmd()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                Execute
                             </button>
-                            <button class="btn btn-secondary" onclick="openPalette()">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                                Search
-                            </button>
+                            <button class="btn btn-secondary" onclick="openPalette()">⌘K Search</button>
                         </div>
                     </div>
 
@@ -329,64 +325,83 @@
                         <div class="quick-action" onclick="quickAction('deploy')"><div class="quick-action-icon">🚀</div><div class="quick-action-text">Deploy</div></div>
                     </div>
 
+                    <div class="terminal">
+                        <div class="terminal-header">
+                            <div class="terminal-dot red"></div>
+                            <div class="terminal-dot yellow"></div>
+                            <div class="terminal-dot green"></div>
+                        </div>
+                        <div class="terminal-body" id="terminal">
+                            <div class="terminal-line success">NanoCorp AI OS v3.0 initialized</div>
+                            <div class="terminal-line success">8 agents online</div>
+                            <div class="terminal-line">Ready for commands...</div>
+                        </div>
+                    </div>
+
                     <div class="feed">
                         <div class="feed-header">
                             <span class="feed-title">Live Activity</span>
                             <div class="feed-filters">
                                 <button class="feed-filter active" onclick="filterFeed('all', this)">All</button>
-                                <button class="feed-filter" onclick="filterFeed('success', this)">Success</button>
+                                <button class="feed-filter" onclick="filterFeed('success', this)">Done</button>
                                 <button class="feed-filter" onclick="filterFeed('working', this)">Active</button>
                             </div>
                         </div>
-                        <div class="feed-items" id="feedItems"></div>
+                        <div class="feed-items" id="feed"></div>
                     </div>
                 </div>
             </div>
 
+            <!-- Right - Metrics -->
             <div class="panel">
                 <div class="panel-header"><span class="panel-title">System Metrics</span></div>
                 <div class="panel-content">
                     <div class="stats-grid">
-                        <div class="stat-card"><div class="stat-value" id="taskCount">24</div><div class="stat-label">Tasks Done</div></div>
-                        <div class="stat-card"><div class="stat-value" id="activeAgents">6</div><div class="stat-label">Active</div></div>
-                        <div class="stat-card"><div class="stat-value" id="memoryCount">847</div><div class="stat-label">Memories</div></div>
-                        <div class="stat-card"><div class="stat-value" id="uptime">99.9%</div><div class="stat-label">Uptime</div></div>
+                        <div class="stat-card"><div class="stat-value" id="tasks">24</div><div class="stat-label">Tasks Done</div></div>
+                        <div class="stat-card"><div class="stat-value" id="active">6</div><div class="stat-label">Active</div></div>
+                        <div class="stat-card"><div class="stat-value" id="mem">847</div><div class="stat-label">Memories</div></div>
+                        <div class="stat-card"><div class="stat-value">99.9%</div><div class="stat-label">Uptime</div></div>
+                    </div>
+
+                    <div class="chart-section">
+                        <div class="chart-title">Performance</div>
+                        <div class="chart-container">
+                            <canvas id="perfChart"></canvas>
+                        </div>
                     </div>
 
                     <div class="progress-section">
                         <div class="progress-ring">
-                            <svg width="140" height="140" viewBox="0 0 140 140">
+                            <svg width="100" height="100" viewBox="0 0 100 100">
                                 <defs>
-                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
                                         <stop offset="0%" style="stop-color:#6366f1"/>
-                                        <stop offset="50%" style="stop-color:#8b5cf6"/>
                                         <stop offset="100%" style="stop-color:#06b6d4"/>
                                     </linearGradient>
                                 </defs>
-                                <circle class="progress-ring-bg" cx="70" cy="70" r="60"/>
-                                <circle class="progress-ring-fill" cx="70" cy="70" r="60" id="progressCircle"/>
+                                <circle class="progress-ring-bg" cx="50" cy="50" r="40"/>
+                                <circle class="progress-ring-fill" cx="50" cy="50" r="40" id="progressCircle"/>
                             </svg>
                             <div class="progress-ring-text">
-                                <div class="progress-ring-value" id="progressValue">70</div>
-                                <div class="progress-ring-label">Efficiency</div>
+                                <div class="progress-ring-value" id="progressVal">70</div>
                             </div>
                         </div>
-                        <div class="progress-title">Overall Performance</div>
+                        <div class="progress-title">Efficiency</div>
                     </div>
 
                     <div class="memory-section">
                         <div class="section-title">Memory Distribution</div>
                         <div class="memory-bars">
-                            <div class="memory-bar-item"><span class="memory-bar-label">Semantic</span><div class="memory-bar-track"><div class="memory-bar-fill primary" id="mem1" style="width: 45%"></div></div><span class="memory-bar-value">45%</span></div>
-                            <div class="memory-bar-item"><span class="memory-bar-label">Episodic</span><div class="memory-bar-track"><div class="memory-bar-fill success" style="width: 30%"></div></div><span class="memory-bar-value">30%</span></div>
-                            <div class="memory-bar-item"><span class="memory-bar-label">Procedural</span><div class="memory-bar-track"><div class="memory-bar-fill warning" style="width: 15%"></div></div><span class="memory-bar-value">15%</span></div>
-                            <div class="memory-bar-item"><span class="memory-bar-label">Insights</span><div class="memory-bar-track"><div class="memory-bar-fill pink" style="width: 10%"></div></div><span class="memory-bar-value">10%</span></div>
+                            <div class="memory-bar"><span class="memory-bar-label">Semantic</span><div class="memory-bar-track"><div class="memory-bar-fill primary" style="width: 45%"></div></div><span class="memory-bar-value">45%</span></div>
+                            <div class="memory-bar"><span class="memory-bar-label">Episodic</span><div class="memory-bar-track"><div class="memory-bar-fill success" style="width: 30%"></div></div><span class="memory-bar-value">30%</span></div>
+                            <div class="memory-bar"><span class="memory-bar-label">Procedural</span><div class="memory-bar-track"><div class="memory-bar-fill warning" style="width: 15%"></div></div><span class="memory-bar-value">15%</span></div>
+                            <div class="memory-bar"><span class="memory-bar-label">Insights</span><div class="memory-bar-track"><div class="memory-bar-fill pink" style="width: 10%"></div></div><span class="memory-bar-value">10%</span></div>
                         </div>
                     </div>
 
                     <div class="health-section">
                         <div class="section-title">System Health</div>
-                        <div class="health-row"><span class="health-label">CPU Usage</span><span class="health-value">23%</span></div>
+                        <div class="health-row"><span class="health-label">CPU</span><span class="health-value">23%</span></div>
                         <div class="health-row"><span class="health-label">Memory</span><span class="health-value">1.2 GB</span></div>
                         <div class="health-row"><span class="health-label">Network</span><span class="health-value">↓ 2.4 MB/s</span></div>
                         <div class="health-row"><span class="health-label">Tasks/min</span><span class="health-value">3.2</span></div>
@@ -397,211 +412,286 @@
     </div>
 
     <script>
-        const state = {
-            agents: [
-                { id: 'ceo', name: 'CEO', type: 'Chief Executive', status: 'online', task: 'Coordinating workforce' },
-                { id: 'coder', name: 'CODER', type: 'Software Engineer', status: 'busy', task: 'Building REST API' },
-                { id: 'designer', name: 'DESIGNER', type: 'UI/UX Designer', status: 'online', task: 'Creating landing page' },
-                { id: 'researcher', name: 'RESEARCHER', type: 'Market Analyst', status: 'online', task: 'Analyzing competitors' },
-                { id: 'marketer', name: 'MARKETER', type: 'Growth Hacker', status: 'online', task: 'Planning campaign' },
-                { id: 'writer', name: 'WRITER', type: 'Content Creator', status: 'busy', task: 'Drafting blog post' },
-                { id: 'data', name: 'DATA', type: 'Data Analyst', status: 'online', task: 'Generating reports' },
-                { id: 'devops', name: 'DEVOPS', type: 'Infrastructure', status: 'online', task: 'Managing deployments' }
-            ],
-            feed: [
-                { agent: 'CODER', content: 'Deployed authentication service to production', status: 'success', time: '2m ago' },
-                { agent: 'WRITER', content: 'Publishing case study: "How AI Scales Startups"', status: 'working', time: 'now' },
-                { agent: 'MARKETER', content: 'Launched email campaign to 10K subscribers', status: 'success', time: '5m ago' },
-                { agent: 'DESIGNER', content: 'Completed mobile responsive overhaul', status: 'success', time: '8m ago' },
-                { agent: 'DATA', content: 'Generated Q4 revenue analytics dashboard', status: 'success', time: '12m ago' },
-                { agent: 'RESEARCHER', content: 'Competitor analysis: 12 companies profiled', status: 'success', time: '15m ago' },
-                { agent: 'CEO', content: 'Decomposed YC application into 47 actionable tasks', status: 'success', time: '20m ago' },
-                { agent: 'DEVOPS', content: 'Scaled infrastructure to handle 100K users', status: 'success', time: '25m ago' }
-            ],
-            commands: [
-                { icon: '🔍', title: 'Research Task', desc: 'Assign research to AI agent', shortcut: 'Ctrl+R' },
-                { icon: '💻', title: 'Write Code', desc: 'Generate code with Coder', shortcut: 'Ctrl+C' },
-                { icon: '📧', title: 'Send Email', desc: 'Compose and send email', shortcut: 'Ctrl+E' },
-                { icon: '🚀', title: 'Deploy Project', desc: 'Deploy to production', shortcut: 'Ctrl+D' },
-                { icon: '📊', title: 'Generate Report', desc: 'Create analytics report', shortcut: 'Ctrl+G' },
-                { icon: '🎨', title: 'Design Task', desc: 'Create designs with Designer', shortcut: 'Ctrl+T' },
-                { icon: '📝', title: 'Write Content', desc: 'Generate content with Writer', shortcut: 'Ctrl+W' },
-                { icon: '🔄', title: 'Sync Agents', desc: 'Refresh all agent states', shortcut: 'Ctrl+S' }
-            ],
-            metrics: { tasks: 24, active: 6, memories: 847, progress: 70 },
-            filter: 'all'
-        };
+        // State
+        const agents = [
+            { id: 'ceo', name: 'CEO', type: 'Chief Executive', status: 'online', task: 'Coordinating workforce' },
+            { id: 'coder', name: 'CODER', type: 'Software Engineer', status: 'busy', task: 'Building REST API' },
+            { id: 'designer', name: 'DESIGNER', type: 'UI/UX Designer', status: 'online', task: 'Creating landing page' },
+            { id: 'researcher', name: 'RESEARCHER', type: 'Market Analyst', status: 'online', task: 'Analyzing competitors' },
+            { id: 'marketer', name: 'MARKETER', type: 'Growth Hacker', status: 'online', task: 'Planning campaign' },
+            { id: 'writer', name: 'WRITER', type: 'Content Creator', status: 'busy', task: 'Drafting blog post' },
+            { id: 'data', name: 'DATA', type: 'Data Analyst', status: 'online', task: 'Generating reports' },
+            { id: 'devops', name: 'DEVOPS', type: 'Infrastructure', status: 'online', task: 'Managing deployments' }
+        ];
+        const feed = [
+            { agent: 'CODER', content: 'Deployed auth service to production', status: 'success', time: '2m ago' },
+            { agent: 'WRITER', content: 'Publishing case study on AI scaling', status: 'working', time: 'now' },
+            { agent: 'MARKETER', content: 'Launched email campaign to 10K subscribers', status: 'success', time: '5m ago' },
+            { agent: 'DESIGNER', content: 'Completed mobile responsive overhaul', status: 'success', time: '8m ago' },
+            { agent: 'DATA', content: 'Generated Q4 revenue dashboard', status: 'success', time: '12m ago' },
+            { agent: 'RESEARCHER', content: 'Competitor analysis: 12 companies', status: 'success', time: '15m ago' },
+            { agent: 'CEO', content: 'Decomposed YC application into 47 tasks', status: 'success', time: '20m ago' }
+        ];
+        const commands = [
+            { icon: '🔍', title: 'Research Task', desc: 'Assign research to AI agent', key: 'Ctrl+R' },
+            { icon: '💻', title: 'Write Code', desc: 'Generate code with Coder', key: 'Ctrl+C' },
+            { icon: '📧', title: 'Send Email', desc: 'Compose and send email', key: 'Ctrl+E' },
+            { icon: '🚀', title: 'Deploy Project', desc: 'Deploy to production', key: 'Ctrl+D' },
+            { icon: '📊', title: 'Generate Report', desc: 'Create analytics report', key: 'Ctrl+G' },
+            { icon: '🎨', title: 'Design Task', desc: 'Create designs with Designer', key: 'Ctrl+T' },
+            { icon: '📝', title: 'Write Content', desc: 'Generate content', key: 'Ctrl+W' }
+        ];
+        let taskCount = 24;
+        let filterType = 'all';
 
-        document.addEventListener('DOMContentLoaded', () => {
-            updateTime(;
-            setInterval(updateTime, 1000;
-            renderAgents(;
-            renderFeed(;
-            renderPaletteResults('';
-            animateProgress(;
-            simulateActivity(;
-            setupEventListeners(;
-        };
-
-        function updateTime() {
-            const now = new Date(;
-            document.getElementById('headerTime').textContent = now.toLocaleTimeString('en-US', { hour12: false };
+        // Particles
+        const pCanvas = document.getElementById('particles');
+        const pCtx = pCanvas.getContext('2d');
+        pCanvas.width = window.innerWidth;
+        pCanvas.height = window.innerHeight;
+        const particles = [];
+        for (let i = 0; i < 80; i++) {
+            particles.push({ x: Math.random() * pCanvas.width, y: Math.random() * pCanvas.height, vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5, size: Math.random() * 2 + 1 });
         }
+        function animateParticles() {
+            pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+            particles.forEach((p, i) => {
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < 0 || p.x > pCanvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > pCanvas.height) p.vy *= -1;
+                pCtx.beginPath();
+                pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                pCtx.fillStyle = 'rgba(99, 102, 241, 0.5)';
+                pCtx.fill();
+                particles.forEach(p2 => {
+                    const d = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if (d < 120) {
+                        pCtx.beginPath();
+                        pCtx.moveTo(p.x, p.y);
+                        pCtx.lineTo(p2.x, p2.y);
+                        pCtx.strokeStyle = `rgba(99, 102, 241, ${0.15 - d / 800})`;
+                        pCtx.stroke();
+                    }
+                });
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
 
+        // Neural Network
+        const nCanvas = document.getElementById('neural');
+        const nCtx = nCanvas.getContext('2d');
+        nCanvas.width = window.innerWidth;
+        nCanvas.height = window.innerHeight;
+        const nodes = [];
+        for (let i = 0; i < 20; i++) {
+            nodes.push({ x: Math.random() * nCanvas.width, y: Math.random() * nCanvas.height, radius: Math.random() * 30 + 20, vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3 });
+        }
+        function animateNeural() {
+            nCtx.clearRect(0, 0, nCanvas.width, nCanvas.height);
+            nodes.forEach(n => {
+                n.x += n.vx; n.y += n.vy;
+                if (n.x < 0 || n.x > nCanvas.width) n.vx *= -1;
+                if (n.y < 0 || n.y > nCanvas.height) n.vy *= -1;
+                nCtx.beginPath();
+                nCtx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+                nCtx.strokeStyle = 'rgba(139, 92, 246, 0.1)';
+                nCtx.lineWidth = 1;
+                nCtx.stroke();
+            });
+            requestAnimationFrame(animateNeural);
+        }
+        animateNeural();
+
+        // Chart
+        new Chart(document.getElementById('perfChart'), {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    data: [12, 19, 15, 25, 22, 30, 28],
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 4
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#71717a', font: { size: 10 } }, y: { display: false } } } }
+        });
+
+        // Render
         function renderAgents() {
-            const container = document.getElementById('agentList';
-            container.innerHTML = state.agents.map(agent => `
-                <div class="agent-card" data-id="${agent.id}" onclick="selectAgent('${agent.id}')">
+            document.getElementById('agents').innerHTML = agents.map(a => `
+                <div class="agent-card${a.id === 'ceo' ? ' active' : ''}" onclick="selectAgent('${a.id}')">
                     <div class="agent-header">
-                        <span class="agent-name">${agent.name}</span>
-                        <div class="agent-status ${agent.status}"></div>
+                        <span class="agent-name">${a.name}</span>
+                        <div class="agent-status ${a.status}"></div>
                     </div>
-                    <div class="agent-type">${agent.type}</div>
-                    <div class="agent-task">${agent.task}</div>
+                    <div class="agent-type">${a.type}</div>
+                    <div class="agent-task">${a.task}</div>
                 </div>
-            `).join('';
-        }
-
-        function selectAgent(id) {
-            document.querySelectorAll('.agent-card').forEach(card => card.classList.toggle('active', card.dataset.id === id);
-            const agent = state.agents.find(a => a.id === id;
-            showToast('Agent Selected', `${agent.name} - ${agent.type}`, 'success';
+            `).join('');
         }
 
         function renderFeed() {
-            const container = document.getElementById('feedItems';
-            let items = state.filter === 'all' ? state.feed : state.feed.filter(i => state.filter === 'success' ? i.status === 'success' : i.status === 'working';
-            container.innerHTML = items.map(item => `
-                <div class="feed-item ${item.status}">
+            let items = filterType === 'all' ? feed : feed.filter(f => f.status === filterType);
+            document.getElementById('feed').innerHTML = items.map(f => `
+                <div class="feed-item ${f.status}">
                     <div class="feed-item-header">
-                        <span class="feed-item-agent">${item.agent}</span>
-                        <span class="feed-item-time">${item.time}</span>
+                        <span class="feed-item-agent">${f.agent}</span>
+                        <span class="feed-item-time">${f.time}</span>
                     </div>
-                    <div class="feed-item-content">${item.content}</div>
+                    <div class="feed-item-content">${f.content}</div>
                 </div>
-            `).join('';
+            `).join('');
         }
 
-        function filterFeed(filter, btn) {
-            state.filter = filter;
-            document.querySelectorAll('.feed-filter').forEach(b => b.classList.remove('active');
-            btn.classList.add('active';
-            renderFeed(;
+        function selectAgent(id) {
+            document.querySelectorAll('.agent-card').forEach(c => c.classList.remove('active'));
+            document.querySelector(`[data-id="${id}"]`).classList.add('active');
+            const a = agents.find(x => x.id === id);
+            toast('Agent Selected', `${a.name} - ${a.type}`, 'success');
         }
 
-        function submitCommand() {
-            const input = document.getElementById('commandInput';
-            const command = input.value.trim(;
-            if (!command) return input.focus(;
-            
-            state.feed.unshift({ agent: 'CEO', content: `Executing: "${command}"`, status: 'working', time: 'now' };
+        function filterFeed(type, btn) {
+            filterType = type;
+            document.querySelectorAll('.feed-filter').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderFeed();
+        }
+
+        function executeCmd() {
+            const input = document.getElementById('cmdInput');
+            const cmd = input.value.trim();
+            if (!cmd) return input.focus();
+            feed.unshift({ agent: 'CEO', content: `Executing: "${cmd}"`, status: 'working', time: 'now' });
+            addTerminal(`Executing: ${cmd}`);
             input.value = '';
-            renderFeed(;
-            showToast('Task Initiated', command, 'success';
-            
+            renderFeed();
+            toast('Task Initiated', cmd, 'success');
             setTimeout(() => {
-                state.feed[0].status = 'success';
-                state.feed[0].content = `Completed: "${command}"`;
-                state.metrics.tasks++;
-                document.getElementById('taskCount').textContent = state.metrics.tasks;
-                renderFeed(;
-                showToast('Task Completed', command, 'success';
-            }, 2500;
+                feed[0].status = 'success';
+                feed[0].content = `Completed: "${cmd}"`;
+                addTerminal(`✓ Task completed successfully`, 'success');
+                taskCount++;
+                document.getElementById('tasks').textContent = taskCount;
+                document.getElementById('active').textContent = agents.filter(a => a.status !== 'idle').length;
+                renderFeed();
+                toast('Task Completed', cmd, 'success');
+            }, 2500);
         }
 
         function quickAction(type) {
-            const actions = {
-                research: 'Researching AI market trends and competitors',
-                code: 'Building REST API for user management',
-                design: 'Creating stunning landing page mockup',
-                deploy: 'Deploying to production environment'
-            };
-            state.feed.unshift({ agent: type.toUpperCase(), content: actions[type], status: 'working', time: 'now' };
-            renderFeed(;
-            showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} Initiated`, actions[type], 'success';
+            const actions = { research: 'Researching market trends', code: 'Building REST API', design: 'Creating landing page', deploy: 'Deploying to production' };
+            feed.unshift({ agent: type.toUpperCase(), content: actions[type], status: 'working', time: 'now' });
+            addTerminal(`${type.toUpperCase()}: ${actions[type]}`);
+            renderFeed();
+            toast(`${type.charAt(0).toUpperCase() + type.slice(1)} Started`, actions[type], 'success');
             setTimeout(() => {
-                state.feed[0].status = 'success';
-                state.metrics.tasks++;
-                document.getElementById('taskCount').textContent = state.metrics.tasks;
-                renderFeed(;
-            }, 3000;
+                feed[0].status = 'success';
+                addTerminal(`✓ ${type} task completed`, 'success');
+                taskCount++;
+                document.getElementById('tasks').textContent = taskCount;
+                renderFeed();
+            }, 3000);
         }
 
-        function animateProgress() {
-            const circle = document.getElementById('progressCircle';
-            const value = document.getElementById('progressValue';
-            const circumference = 377;
-            setInterval(() => {
-                const progress = 60 + Math.random() * 20;
-                circle.style.strokeDashoffset = circumference - (progress / 100) * circumference;
-                value.textContent = Math.round(progress;
-            }, 3000;
+        function addTerminal(text, type = '') {
+            const term = document.getElementById('terminal');
+            const line = document.createElement('div');
+            line.className = `terminal-line ${type}`;
+            line.textContent = text;
+            term.appendChild(line);
+            term.scrollTop = term.scrollHeight;
         }
 
-        function simulateActivity() {
-            const messages = [
-                { agent: 'CODER', content: 'Fixed critical authentication bug' },
-                { agent: 'WRITER', content: 'Published product announcement' },
-                { agent: 'MARKETER', content: 'Scheduled 50 social media posts' },
-                { agent: 'DATA', content: 'Updated real-time analytics' },
-                { agent: 'DESIGNER', content: 'Created new icon library' },
-                { agent: 'RESEARCHER', content: 'Found 3 new market opportunities' }
-            ];
-            setInterval(() => {
-                const msg = messages[Math.floor(Math.random() * messages.length)];
-                state.feed.unshift({ ...msg, status: Math.random() > 0.3 ? 'success' : 'working', time: 'now' };
-                if (state.feed.length > 15) state.feed.pop(;
-                renderFeed(;
-            }, 6000;
-        }
-
-        function showToast(title, message, type = 'success') {
-            const container = document.getElementById('toastContainer';
-            const toast = document.createElement('div';
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `<div class="toast-icon">${type === 'success' ? '✓' : '✕'}</div><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div>`;
-            container.appendChild(toast;
-            setTimeout(() => { toast.style.animation = 'toastIn 0.3s ease reverse'; setTimeout(() => toast.remove(), 300; }, 3000;
+        function toast(title, msg, type = 'success') {
+            const container = document.getElementById('toasts');
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.innerHTML = `<div class="toast-icon">${type === 'success' ? '✓' : '✕'}</div><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>`;
+            container.appendChild(t);
+            setTimeout(() => { t.style.animation = 'slideIn 0.3s ease reverse'; setTimeout(() => t.remove(), 300); }, 3000);
         }
 
         function openPalette() {
-            document.getElementById('commandPalette').classList.add('active';
-            document.getElementById('paletteInput').focus(;
+            document.getElementById('palette').classList.add('active');
+            document.getElementById('paletteInput').focus();
         }
 
         function closePalette() {
-            document.getElementById('commandPalette').classList.remove('active';
+            document.getElementById('palette').classList.remove('active');
             document.getElementById('paletteInput').value = '';
         }
 
-        function renderPaletteResults(query) {
-            const container = document.getElementById('paletteResults';
-            const filtered = state.commands.filter(cmd => cmd.title.toLowerCase().includes(query.toLowerCase()) || cmd.desc.toLowerCase().includes(query.toLowerCase());
-            container.innerHTML = filtered.map(cmd => `
-                <div class="palette-item" onclick="executeCommand('${cmd.title}')">
-                    <div class="palette-item-icon">${cmd.icon}</div>
-                    <div class="palette-item-content">
-                        <div class="palette-item-title">${cmd.title}</div>
-                        <div class="palette-item-desc">${cmd.desc}</div>
+        function renderPalette(q) {
+            const results = commands.filter(c => c.title.toLowerCase().includes(q.toLowerCase()));
+            document.getElementById('paletteResults').innerHTML = results.map(c => `
+                <div class="palette-item" onclick="runCmd('${c.title}')">
+                    <div class="palette-icon">${c.icon}</div>
+                    <div class="palette-content">
+                        <div class="palette-title">${c.title}</div>
+                        <div class="palette-desc">${c.desc}</div>
                     </div>
-                    <span class="palette-item-shortcut">${cmd.shortcut}</span>
+                    <span class="palette-shortcut">${c.key}</span>
                 </div>
-            `).join('';
+            `).join('');
         }
 
-        function executeCommand(title) { closePalette(; showToast('Command Executed', title, 'success'; }
+        function runCmd(title) {
+            closePalette();
+            toast('Command Executed', title, 'success');
+            addTerminal(title);
+        }
 
-        function setupEventListeners() {
-            document.getElementById('commandInput').addEventListener('keypress', e => e.key === 'Enter' && submitCommand();
-            document.getElementById('paletteInput').addEventListener('input', e => renderPaletteResults(e.target.value);
+        // Animate progress
+        function animateProgress() {
+            const circle = document.getElementById('progressCircle');
+            const val = document.getElementById('progressVal');
+            setInterval(() => {
+                const p = 55 + Math.random() * 25;
+                circle.style.strokeDashoffset = 251 - (p / 100) * 251;
+                val.textContent = Math.round(p);
+            }, 3000);
+        }
+
+        // Simulate activity
+        function simulate() {
+            const msgs = [
+                { agent: 'CODER', content: 'Fixed authentication bug' },
+                { agent: 'WRITER', content: 'Published blog post' },
+                { agent: 'MARKETER', content: 'Scheduled 50 posts' },
+                { agent: 'DATA', content: 'Updated analytics' },
+                { agent: 'DESIGNER', content: 'Created new icons' }
+            ];
+            setInterval(() => {
+                const m = msgs[Math.floor(Math.random() * msgs.length)];
+                feed.unshift({ ...m, status: Math.random() > 0.3 ? 'success' : 'working', time: 'now' });
+                if (feed.length > 12) feed.pop();
+                renderFeed();
+            }, 5000);
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAgents();
+            renderFeed();
+            renderPalette('');
+            animateProgress();
+            simulate();
+            setInterval(() => document.getElementById('time').textContent = new Date().toLocaleTimeString('en-US', { hour12: false }), 1000);
+            document.getElementById('cmdInput').addEventListener('keypress', e => e.key === 'Enter' && executeCmd());
+            document.getElementById('paletteInput').addEventListener('input', e => renderPalette(e.target.value));
             document.addEventListener('keydown', e => {
-                if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(; openPalette(; }
-                if (e.key === 'Escape') closePalette(;
-            };
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openPalette(); }
+                if (e.key === 'Escape') closePalette();
+            });
             document.addEventListener('click', e => {
-                if (!e.target.closest('.command-palette') && !e.target.closest('button')) closePalette(;
-            };
-        }
+                if (!e.target.closest('.palette') && !e.target.closest('button')) closePalette();
+            });
+        });
     </script>
 </body>
 </html>
