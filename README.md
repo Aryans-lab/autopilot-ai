@@ -21,6 +21,40 @@
 - 🌐 **REST API** - FastAPI-powered API server
 - ⏰ **Scheduler** - Cron-based task scheduling
 - 🪝 **Webhooks** - Event-driven automation
+- 🎨 **Mission Control UI** - World-class frontend with neural networks, particles, terminal
+
+## 🎨 Mission Control Frontend
+
+A stunning YC-ready dashboard featuring:
+
+```
+frontend/
+├── index.html      # World-class SaaS dashboard
+```
+
+**Visual Features:**
+- 🌌 **Particle System** - Animated particles with connecting lines
+- 🧠 **Neural Network** - Abstract neural visualization
+- 💻 **Terminal** - Live command output
+- 📈 **Charts** - Performance analytics (Chart.js)
+- 🎯 **Command Palette** - Ctrl+K for quick commands
+- 🔔 **Toast Notifications** - Beautiful success/error alerts
+- ⚡ **Real-time Updates** - Live activity feed
+
+**Design:**
+- Premium dark SaaS aesthetic (Linear, Vercel inspired)
+- Space Grotesk + Inter typography
+- Indigo/Violet/Cyan gradient accents
+- Smooth animations throughout
+
+### Run Frontend
+
+```bash
+cd autopilot-ai
+open frontend/index.html
+# or
+python -m http.server 8080 --directory frontend
+```
 
 ## 📦 Quick Install
 
