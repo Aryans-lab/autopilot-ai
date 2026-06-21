@@ -1,41 +1,61 @@
-# Byte-compiled / optimized / DLL files
+```
+# Python specific
 __pycache__/
-*.py[cod]
-*$py.class
-
-# Distribution / packaging
+*.pyc
+*.pyo
+*.pyd
 .Python
-build/
-dist/
-*.egg-info/
-*.egg
-
-# Environments
-.env
-.venv
+env/
 venv/
-ENV/
-
-# IDE
-.idea/
-.vscode/
-
-# Testing
+.venv/
+.ENV
+.env
+.env.local
+.env.*
+.venv/
+.ENV/
+.ENV.local
+.ENV.*
+.python-version
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
 .coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git*
 .pytest_cache/
+.hypothesis/
+.coverage*
 htmlcov/
-.pytest_cache/
-
-# Project specific (local data, don't commit)
-.nanocorp/
-.workspace/
-.demo_memory/
-.test_memory/
-chromadb/
-
-# OS
+.pyup.yml
+.bandit
+.isort.cfg
+.black
+.checkov.yaml
+.commitlint.yaml
+.deepsource.toml
+.editorconfig
+.eslintrc*
+.flake8
+.gemspec
+.gitattributes
+.gitignore
+.pre-commit-config.yaml
+.pylintrc
+.ruff.toml
+.style.yapf
+.tern-project
+.vimrc
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
 Thumbs.db
-
-# Logs
-*.log
+```

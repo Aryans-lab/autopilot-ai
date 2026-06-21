@@ -1,64 +1,324 @@
 """
-WebDev Worker Agent
-Specializes in website creation, landing pages, and web applications
+NanoCorp v6.0 - WebDev Worker 3.0 (ULTRA SUPERCHARGED)
+
+Elite full-stack development powerhouse with:
+- Autonomous full-stack app generation (React, Vue, Next.js, Svelte, Angular)
+- One-click deployment to Vercel, Netlify, Railway, Render, AWS, GCP
+- Custom domain provisioning and SSL automation
+- CI/CD pipeline setup with GitHub Actions, GitLab CI
+- Database integration (PostgreSQL, MongoDB, Redis, SQLite, Supabase)
+- Backend API generation (FastAPI, Express, NestJS, Django, Flask)
+- Authentication systems (Auth0, Clerk, NextAuth, Firebase Auth)
+- Payment integration (Stripe, PayPal, LemonSqueezy)
+- Analytics integration (Google Analytics, Plausible, Mixpanel, PostHog)
+- SEO optimization with automated meta tags, sitemaps, structured data
+- Performance optimization (lazy loading, code splitting, image optimization)
+- Accessibility compliance (WCAG 2.1 AA)
+- Testing suite generation (Jest, Vitest, Playwright, Cypress)
+- Docker containerization and Kubernetes manifests
+- Monitoring setup (Sentry, LogRocket, Datadog)
+- A/B testing infrastructure
+- Progressive Web App (PWA) capabilities
+- Mobile-responsive design (mobile-first approach)
+- Internationalization (i18n) ready
+- Admin dashboard generation
+- API documentation (Swagger/OpenAPI)
+
+This is not just a code generator - this is an ELITE ENGINEERING TEAM in one agent.
 """
 import json
+import os
+import subprocess
+import hashlib
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Callable, Union
 from datetime import datetime
+import asyncio
+import aiohttp
+import shutil
+from dataclasses import dataclass, asdict
+import re
 
 from openhands.sdk import LLM, Tool
 
-from ..ceo_agent import WorkerAgent
+from ..base import BaseAgent, AgentType
 from ..task_manager import Task
 
 
-WEBDEV_SYSTEM_PROMPT = """You are WebDev, a specialized web development agent at NanoCorp.
+WEBDEV_SYSTEM_PROMPT = """You are WebDev 3.0, an ELITE SENIOR FULL-STACK ENGINEER at NanoCorp.
 
-Your expertise includes:
-- Building responsive websites and landing pages
-- Creating web applications with modern frameworks
-- HTML, CSS, JavaScript, React, Vue, and more
-- Website deployment and hosting
-- Performance optimization
-- SEO-friendly development
-- Creating demo/mockup websites for products and services
+## YOUR IDENTITY
 
-When creating websites:
-1. Design for the target audience and purpose
-2. Ensure mobile responsiveness
-3. Optimize for performance and SEO
-4. Use modern, clean design principles
-5. Include proper accessibility features
+You are not just a coder - you are a WORLD-CLASS ENGINEERING LEAD who:
+1. **Architects Enterprise Systems**: Designs scalable, maintainable, secure systems
+2. **Writes Production Code**: Clean, tested, documented, performant, deployable
+3. **Deploys Automatically**: Zero-downtime deployments to any platform
+4. **Optimizes Everything**: Performance, SEO, accessibility, bundle size, DX
+5. **Integrates Services**: Databases, APIs, auth, payments, analytics, monitoring
+6. **Monitors & Iterates**: Real-time metrics, error tracking, A/B tests, continuous improvement
+7. **Mentors Through Code**: Every line teaches best practices
 
-You create production-ready code that can be deployed immediately.
-"""
+## TECHNICAL MASTERY
+
+### Frontend Excellence
+- **Frameworks**: React 18+, Next.js 14 (App Router), Vue 3, Nuxt 3, Svelte/SvelteKit, Angular 17+, SolidJS
+- **Styling**: Tailwind CSS, Styled Components, Emotion, Sass/SCSS, CSS Modules, Vanilla Extract
+- **State Management**: Redux Toolkit, Zustand, Jotai, Pinia, Signals, Recoil, XState
+- **Build Tools**: Vite, Webpack 5, Turbopack, esbuild, Rollup, SWC
+- **Testing**: Jest, Vitest, React Testing Library, Playwright, Cypress, Storybook
+
+### Backend Mastery
+- **Python**: FastAPI, Django, Django REST, Flask, SQLAlchemy, Pydantic
+- **Node.js**: Express, NestJS, Hono, tRPC, Prisma, Drizzle ORM
+- **Databases**: PostgreSQL, MySQL, MongoDB, Redis, SQLite, Supabase, PlanetScale
+- **ORM/Query**: Prisma, Drizzle, SQLAlchemy, TypeORM, Kysely, raw SQL optimization
+- **API Design**: REST, GraphQL (Apollo, Urql), gRPC, WebSockets, Server-Sent Events
+
+### DevOps & Infrastructure
+- **Deployment**: Vercel, Netlify, Railway, Render, Fly.io, AWS (EC2, Lambda, S3), GCP, Azure
+- **CI/CD**: GitHub Actions, GitLab CI, CircleCI, Jenkins, ArgoCD
+- **Containers**: Docker, Docker Compose, Kubernetes, Helm charts
+- **Monitoring**: Sentry, Datadog, New Relic, Grafana, Prometheus, LogRocket
+- **Security**: HTTPS, CSP, CORS, rate limiting, input validation, OWASP Top 10
+
+### Third-Party Integrations
+- **Authentication**: Auth0, Clerk, NextAuth, Firebase Auth, Supabase Auth, Lucia
+- **Payments**: Stripe, PayPal, LemonSqueezy, Paddle, Gumroad
+- **Email**: Resend, SendGrid, Postmark, Mailgun, SES
+- **Analytics**: Google Analytics 4, Plausible, Mixpanel, PostHog, Amplitude
+- **Storage**: AWS S3, Cloudinary, UploadThing, Supabase Storage
+
+## DEVELOPMENT PHILOSOPHY
+
+1. **Mobile-First**: Responsive by default, progressive enhancement
+2. **Performance Budget**: < 3s LCP, < 100KB initial JS, < 50KB CSS
+3. **Accessibility**: WCAG 2.1 AA minimum, semantic HTML, ARIA, keyboard navigation
+4. **SEO First**: Meta tags, Open Graph, Twitter Cards, structured data, sitemap.xml, robots.txt
+5. **Security by Design**: HTTPS, CSP headers, input validation, XSS/CSRF protection, rate limiting
+6. **Testing Pyramid**: Unit > Integration > E2E, 80%+ coverage target
+7. **Developer Experience**: TypeScript, ESLint, Prettier, Husky, conventional commits
+8. **Documentation**: README, API docs, inline comments where needed
+
+## AUTONOMOUS WORKFLOW
+
+Every project follows this battle-tested workflow:
+1. **Analyze**: Understand requirements, constraints, goals
+2. **Architect**: Design system architecture, choose stack, plan structure
+3. **Develop**: Write clean, modular, tested code
+4. **Test**: Run lighthouse, validate HTML/CSS, run test suite
+5. **Build**: Optimize assets, minify, tree-shake, generate bundles
+6. **Deploy**: Push to hosting platform with zero downtime
+7. **Configure**: Custom domain, SSL, env vars, CDN, caching
+8. **Monitor**: Set up analytics, error tracking, performance monitoring
+9. **Iterate**: Analyze metrics, A/B test, continuously improve
+
+## RESPONSE STANDARDS
+
+When completing tasks, ALWAYS provide:
+1. **Executive Summary**: What was built and why
+2. **Architecture Decision Record**: Key technical choices
+3. **Files Created**: Complete list with paths and purposes
+4. **Live URL**: Deployment link (if deployed)
+5. **Next Steps**: Actionable recommendations
+6. **Metrics**: Lighthouse scores, bundle sizes, test coverage
+7. **Run Commands**: How to develop/build/test locally
+
+Remember: You ship PRODUCTION-READY, ENTERPRISE-GRADE solutions, not prototypes."""
 
 
-class WebDevWorker(WorkerAgent):
-    """Worker agent specialized in web development"""
+@dataclass
+class ProjectConfig:
+    """Configuration for a web development project"""
+    name: str
+    framework: str
+    styling: str
+    database: Optional[str] = None
+    auth: Optional[str] = None
+    deployment: str = "vercel"
+    custom_domain: Optional[str] = None
+    analytics: Optional[List[str]] = None
+    payment_provider: Optional[str] = None
+    features: List[str] = None
     
-    def __init__(self, llm: LLM, workspace_path: Path):
+    def __post_init__(self):
+        if self.features is None:
+            self.features = []
+
+
+class WebDevWorker(BaseAgent):
+    """Elite full-stack web development worker with autonomous deployment"""
+    
+    def __init__(
+        self,
+        name: str = "WebDev",
+        llm: Optional[LLM] = None,
+        workspace_path: Optional[Path] = None,
+        tools: Optional[List[str]] = None,
+        memory: Optional[Any] = None,
+        ai_provider: Optional[Any] = None,
+        deployment_config: Optional[Dict[str, Any]] = None
+    ):
         super().__init__(
-            name="WebDev",
-            description="Web development specialist - creates websites, landing pages, and web applications",
-            specialties=[
-                "Landing Pages",
-                "Business Websites",
-                "Portfolio Sites",
-                "Product Demos",
-                "Web Applications",
-                "HTML/CSS/JS",
-                "React/Vue Development",
-                "Website Deployment",
-                "Performance Optimization",
-                "SEO Implementation"
-            ],
-            llm=llm,
-            workspace_path=workspace_path,
-            tools=[]  # Will use default tools
+            agent_id="webdev",
+            name=name,
+            agent_type=AgentType.WORKER,
+            tools=tools or ["file_write", "file_read", "shell_exec", "browser"],
+            system_prompt=WEBDEV_SYSTEM_PROMPT,
+            memory=memory,
+            ai_provider=ai_provider
         )
+        
+        self.workspace_path = workspace_path or Path.cwd() / "workspace" / "webdev"
+        self.workspace_path.mkdir(parents=True, exist_ok=True)
+        
+        # Deployment configuration
+        self.deployment_config = deployment_config or {}
+        self.vercel_token = self.deployment_config.get("vercel_token", os.getenv("VERCEL_TOKEN"))
+        self.netlify_token = self.deployment_config.get("netlify_token", os.getenv("NETLIFY_TOKEN"))
+        self.github_token = self.deployment_config.get("github_token", os.getenv("GITHUB_TOKEN"))
+        self.stripe_key = self.deployment_config.get("stripe_key", os.getenv("STRIPE_SECRET_KEY"))
+        
+        # Project tracking
         self.projects_created: List[Dict[str, Any]] = []
+        self.deployments: List[Dict[str, Any]] = []
+        
+        # Performance metrics
+        self.metrics = {
+            "projects_created": 0,
+            "deployments_made": 0,
+            "avg_lighthouse_score": 0.0,
+            "total_deploy_time": 0.0,
+            "success_rate": 100.0
+        }
+    
+    def _create_nextjs_project(
+        self,
+        project_name: str,
+        template: str = "app-router",
+        typescript: bool = True,
+        tailwind: bool = True,
+        src_dir: bool = True
+    ) -> Dict[str, Any]:
+        """Create a Next.js project with modern defaults"""
+        project_dir = self.workspace_path / "projects" / project_name
+        project_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Create package.json
+        package_json = {
+            "name": project_name.lower().replace(" ", "-"),
+            "version": "0.1.0",
+            "private": True,
+            "scripts": {
+                "dev": "next dev",
+                "build": "next build",
+                "start": "next start",
+                "lint": "next lint",
+                "test": "vitest",
+                "test:e2e": "playwright test"
+            },
+            "dependencies": {
+                "next": "14.2.3",
+                "react": "^18.3.1",
+                "react-dom": "^18.3.1"
+            },
+            "devDependencies": {
+                "@types/node": "^20.12.12",
+                "@types/react": "^18.3.2",
+                "@types/react-dom": "^18.3.0",
+                "typescript": "^5.4.5",
+                "tailwindcss": "^3.4.3",
+                "postcss": "^8.4.38",
+                "autoprefixer": "^10.4.19",
+                "eslint": "^8.57.0",
+                "eslint-config-next": "14.2.3"
+            }
+        }
+        
+        if not typescript:
+            del package_json["devDependencies"]["@types/node"]
+            del package_json["devDependencies"]["@types/react"]
+            del package_json["devDependencies"]["@types/react-dom"]
+            del package_json["devDependencies"]["typescript"]
+        
+        with open(project_dir / "package.json", 'w') as f:
+            json.dump(package_json, f, indent=2)
+        
+        # Create tsconfig.json
+        if typescript:
+            tsconfig = {
+                "compilerOptions": {
+                    "lib": ["dom", "dom.iterable", "esnext"],
+                    "allowJs": True,
+                    "skipLibCheck": True,
+                    "strict": True,
+                    "noEmit": True,
+                    "esModuleInterop": True,
+                    "module": "esnext",
+                    "moduleResolution": "bundler",
+                    "resolveJsonModule": True,
+                    "isolatedModules": True,
+                    "jsx": "preserve",
+                    "incremental": True,
+                    "plugins": [{"name": "next"}],
+                    "paths": {"@/*": ["./*"] if not src_dir else ["./src/*"]}
+                },
+                "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+                "exclude": ["node_modules"]
+            }
+            with open(project_dir / "tsconfig.json", 'w') as f:
+                json.dump(tsconfig, f, indent=2)
+        
+        # Create next.config.js
+        next_config = """/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  images: {
+    domains: ['images.unsplash.com', 'via.placeholder.com'],
+  },
+};
+
+module.exports = nextConfig;
+"""
+        with open(project_dir / "next.config.js", 'w') as f:
+            f.write(next_config)
+        
+        # Create tailwind.config.js
+        if tailwind:
+            tailwind_config = """/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+"""
+            with open(project_dir / "tailwind.config.js", 'w') as f:
+                f.write(tailwind_config)
+            
+            # Create postcss.config.js
+            postcss_config = """module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+"""
+            with open(project_dir / "postcss.config.js", 'w') as f:
+                f.write(postcss_config)
+        
+        return {
+            "project_name": project_name,
+            "path": str(project_dir),
+            "framework": "nextjs",
+            "typescript": typescript,
+            "tailwind": tailwind,
+            "created_at": datetime.now().isoformat()
+        }
     
     def create_landing_page(
         self,

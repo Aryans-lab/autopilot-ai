@@ -6,12 +6,14 @@ from .goals import (
     GoalTree,
     Goal,
     GoalStatus,
-    GoalPriority
+    GoalPriority,
+    GoalManager,
+    Task
 )
 
 __all__ = [
     "OODALoop",
-    "OQDAPhase",
+    "OODAPhase",
     "ThreatLevel",
     "AgentMemory",
     "MemoryEntry",
@@ -22,4 +24,6 @@ __all__ = [
     "Goal",
     "GoalStatus",
     "GoalPriority",
+    "GoalManager",
+    "Task"
 ]
