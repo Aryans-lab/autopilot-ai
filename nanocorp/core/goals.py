@@ -288,6 +288,167 @@ class GoalTree:
         ]
         
         return sorted(active_goals, key=lambda g: priority_order.get(g.priority, 5))
+    
+    def add_task_to_goal(self, goal_id: str, task_title: str, task_type: str = "general", description: str = "", worker_type: str = "general") -> Optional[str]:
+        """Add a task to a goal"""
+        goal = self.goals.get(goal_id)
+        if not goal:
+            return None
+        
+        task_id = f"task_{uuid.uuid4().hex[:8]}"
+        goal.tasks.append(task_id)
+        goal.updated_at = datetime.now()
+        
+        # Store task details in goal context
+        if "tasks_detail" not in goal.context:
+            goal.context["tasks_detail"] = {}
+        
+        goal.context["tasks_detail"][task_id] = {
+            "title": task_title,
+            "type": task_type,
+            "description": description,
+            "worker_type": worker_type,
+            "status": "pending",
+            "created_at": datetime.now().isoformat()
+        }
+        
+        return task_id
+    
+    def get_tasks_for_goal(self, goal_id: str) -> List[Dict[str, Any]]:
+        """Get all tasks for a goal"""
+        goal = self.goals.get(goal_id)
+        if not goal:
+            return []
+        
+        tasks_detail = goal.context.get("tasks_detail", {})
+        tasks = []
+        
+        for task_id in goal.tasks:
+            if task_id in tasks_detail:
+                task_data = tasks_detail[task_id]
+                tasks.append({
+                    "id": task_id,
+                    **task_data
+                })
+        
+        return tasks
+    
+    def update_task_status(self, goal_id: str, task_id: str, status: str, result: Any = None):
+        """Update task status"""
+        goal = self.goals.get(goal_id)
+        if not goal:
+            return
+        
+        tasks_detail = goal.context.get("tasks_detail", {})
+        if task_id in tasks_detail:
+            tasks_detail[task_id]["status"] = status
+            if result:
+                tasks_detail[task_id]["result"] = result
+            if status == "completed":
+                tasks_detail[task_id]["completed_at"] = datetime.now().isoformat()
+            
+            # Update goal progress based on task completion
+            completed_count = sum(1 for t in tasks_detail.values() if t.get("status") == "completed")
+            total_tasks = len(tasks_detail)
+            if total_tasks > 0:
+                goal.progress = completed_count / total_tasks
+            
+            goal.updated_at = datetime.now()
+
+
+# ===========================================
+# TASK DATA CLASS
+# ===========================================
+
+@dataclass
+class Task:
+    """A task within the goal system"""
+    id: str
+    title: str
+    task_type: str
+    description: str = ""
+    priority: str = "medium"
+    status: str = "pending"
+    assigned_worker: Optional[str] = None
+    dependencies: List[str] = field(default_factory=list)
+    goal_id: Optional[str] = None
+    result: Optional[Dict[str, Any]] = None
+    created_at: datetime = field(default_factory=datetime.now)
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary"""
+        data = asdict(self)
+        data['created_at'] = self.created_at.isoformat() if self.created_at else None
+        data['started_at'] = self.started_at.isoformat() if self.started_at else None
+        data['completed_at'] = self.completed_at.isoformat() if self.completed_at else None
+        return data
+
+
+# ===========================================
+# GOAL MANAGER (SIMPLIFIED INTERFACE)
+# ===========================================
+
+class GoalManager:
+    """
+    Simplified goal manager for easy integration with agents.
+    
+    Provides a clean API for:
+    - Adding/getting goals
+    - Managing tasks
+    - Tracking progress
+    """
+    
+    def __init__(self):
+        self.goal_tree = GoalTree()
+        self.tasks: Dict[str, Task] = {}  # Global task registry
+    
+    def add_goal(self, goal: Goal) -> str:
+        """Add a goal"""
+        self.goal_tree.goals[goal.id] = goal
+        if not goal.parent_id:
+            self.goal_tree.root_goals.append(goal.id)
+        return goal.id
+    
+    def get_goal(self, goal_id: str) -> Optional[Goal]:
+        """Get a goal by ID"""
+        return self.goal_tree.get_goal(goal_id)
+    
+    @property
+    def goals(self) -> List[Goal]:
+        """Get all goals"""
+        return list(self.goal_tree.goals.values())
+    
+    def add_task(self, task: Task):
+        """Add a task"""
+        self.tasks[task.id] = task
+        
+        # Also link to goal if specified
+        if task.goal_id:
+            goal = self.get_goal(task.goal_id)
+            if goal:
+                goal.tasks.append(task.id)
+    
+    def get_task(self, task_id: str) -> Optional[Task]:
+        """Get a task by ID"""
+        return self.tasks.get(task_id)
+    
+    def get_tasks_for_goal(self, goal_id: str) -> List[Task]:
+        """Get all tasks for a goal"""
+        return [t for t in self.tasks.values() if t.goal_id == goal_id]
+    
+    def update_task_status(self, task_id: str, status: str, result: Any = None):
+        """Update task status"""
+        task = self.get_task(task_id)
+        if task:
+            task.status = status
+            if status == "in_progress" and not task.started_at:
+                task.started_at = datetime.now()
+            elif status == "completed":
+                task.completed_at = datetime.now()
+            if result:
+                task.result = result
 
 
 class AutonomousGoalEngine:

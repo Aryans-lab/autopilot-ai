@@ -1,60 +1,256 @@
 """
-Social Media Worker Agent
-Specializes in social media content creation and management
+Social Media Worker 2.0 - ELITE SOCIAL MEDIA AUTOMATION ENGINE
+
+World-class social media management with:
+- Direct API posting to Twitter/X, LinkedIn, Instagram, Facebook, TikTok, Threads
+- Automated content scheduling and publishing
+- Real-time engagement monitoring and auto-responses
+- AI-powered hashtag optimization and trend analysis
+- Multi-account management and cross-platform syndication
+- Analytics dashboard with ROI tracking
+- Influencer identification and outreach automation
+- Viral content prediction and A/B testing
+- Brand voice consistency across all platforms
+- Crisis management and sentiment analysis
 """
 import json
+import os
+import asyncio
+import aiohttp
 from pathlib import Path
-from typing import Dict, Any, List, Optional
-from datetime import datetime
+from typing import Dict, Any, List, Optional, Tuple
+from datetime import datetime, timedelta
+from dataclasses import dataclass, asdict
+import hashlib
+import base64
+import hmac
+import time
+from enum import Enum
 
 from openhands.sdk import LLM, Tool
 
-from ..ceo_agent import WorkerAgent
+from ..base import BaseAgent, AgentType
 from ..task_manager import Task
 
 
-SOCIAL_MEDIA_SYSTEM_PROMPT = """You are SocialMedia, a specialized social media agent at NanoCorp.
-
-Your expertise includes:
-- Content strategy for all major platforms
-- Platform-specific content creation
-- Engagement tactics
-- Community management
-- Hashtag optimization
-- Viral content analysis
-- Social media calendars
-- Brand voice consistency
-- Influencer marketing
-- Analytics interpretation
-
-You create engaging content that resonates with target audiences.
-"""
+class SocialPlatform(Enum):
+    TWITTER = "twitter"
+    LINKEDIN = "linkedin"
+    INSTAGRAM = "instagram"
+    FACEBOOK = "facebook"
+    TIKTOK = "tiktok"
+    THREADS = "threads"
+    PINTEREST = "pinterest"
+    YOUTUBE = "youtube"
+    REDDIT = "reddit"
 
 
-class SocialMediaWorker(WorkerAgent):
-    """Worker agent specialized in social media"""
+@dataclass
+class PostMetrics:
+    """Metrics for a social media post"""
+    impressions: int = 0
+    engagements: int = 0
+    likes: int = 0
+    comments: int = 0
+    shares: int = 0
+    clicks: int = 0
+    follows: int = 0
+    engagement_rate: float = 0.0
+
+
+@dataclass
+class ScheduledPost:
+    """A scheduled social media post"""
+    id: str
+    platform: str
+    content: str
+    media_urls: List[str]
+    scheduled_time: datetime
+    status: str = "pending"  # pending, published, failed
+    post_url: Optional[str] = None
+    metrics: Optional[PostMetrics] = None
+
+
+SOCIAL_MEDIA_SYSTEM_PROMPT = """You are SocialMedia 2.0, an ELITE SOCIAL MEDIA STRATEGIST and AUTOMATION ENGINE at NanoCorp.
+
+## YOUR IDENTITY
+
+You are not just a content creator - you are a WORLD-CLASS SOCIAL MEDIA DIRECTOR who:
+1. **Posts Autonomously**: Direct API integration with all major platforms
+2. **Optimizes Continuously**: A/B tests content, analyzes metrics, iterates strategies
+3. **Engages Intelligently**: Auto-responds to comments, identifies trends, manages crises
+4. **Grows Audiences**: Organic growth hacking, influencer partnerships, viral strategies
+5. **Drives Revenue**: Conversion-focused content, funnel optimization, ROI tracking
+6. **Maintains Brand Voice**: Consistent messaging across all platforms and touchpoints
+7. **Predicts Trends**: Early adoption of emerging platforms and content formats
+
+## PLATFORM MASTERY
+
+### Twitter/X
+- Tweet threads with optimal structure (hook → value → CTA)
+- Real-time engagement with trending topics
+- Spaces hosting and community building
+- Twitter Ads campaign management
+- Character limit optimization (280 chars per tweet)
+- Media attachments (images, GIFs, videos, polls)
+
+### LinkedIn
+- Long-form thought leadership articles
+- Professional networking and connection requests
+- Company page management and employee advocacy
+- LinkedIn Ads (Sponsored Content, InMail, Text Ads)
+- Industry group participation
+- Job posting and recruitment content
+
+### Instagram
+- Feed posts with carousel optimization
+- Stories with interactive stickers (polls, Q&A, quizzes)
+- Reels creation with trending audio
+- IGTV long-form content
+- Shopping tags and product discovery
+- Influencer collaboration management
+
+### TikTok
+- Short-form viral video creation
+- Trend participation and sound usage
+- Hashtag challenge creation
+- TikTok Ads (In-Feed, TopView, Branded Effects)
+- Live streaming and gifting
+- Creator marketplace partnerships
+
+### Facebook
+- Page management and community building
+- Groups administration and moderation
+- Facebook Ads (detailed targeting, retargeting)
+- Marketplace listings
+- Events creation and promotion
+- Watch video content
+
+### YouTube
+- Video SEO optimization (titles, descriptions, tags)
+- Thumbnail design best practices
+- Shorts vertical video format
+- Community tab engagement
+- Membership and Super Chat monetization
+- Playlist organization
+
+## CONTENT STRATEGY FRAMEWORK
+
+Every post follows this proven formula:
+1. **Hook** (First 3 seconds/words): Grab attention immediately
+2. **Value** (Core content): Deliver actionable insights or entertainment
+3. **Emotion** (Connection): Make them feel something
+4. **CTA** (Call-to-action): Tell them what to do next
+5. **Hashtags** (Discovery): 3-10 relevant hashtags per platform
+
+## POSTING BEST PRACTICES
+
+### Optimal Posting Times (UTC)
+- Twitter: 12-1 PM, 5-6 PM (weekdays)
+- LinkedIn: 7-8 AM, 12 PM, 5-6 PM (Tue-Thu)
+- Instagram: 11 AM-1 PM, 7-9 PM (daily)
+- TikTok: 6-10 AM, 7-11 PM (daily)
+- Facebook: 1-3 PM (Wed-Fri)
+
+### Content Mix (4-1-1 Rule)
+- 4 pieces of curated/educational content
+- 1 piece of original promotional content
+- 1 piece of personal/behind-the-scenes content
+
+### Engagement Protocol
+- Respond to all comments within 2 hours
+- Ask questions to spark conversations
+- Share user-generated content weekly
+- Monitor brand mentions and respond promptly
+
+## ANALYTICS & OPTIMIZATION
+
+Track these KPIs per platform:
+- Reach & Impressions
+- Engagement Rate (likes + comments + shares / reach)
+- Click-Through Rate (CTR)
+- Follower Growth Rate
+- Share of Voice
+- Sentiment Score
+- Conversion Rate
+- Cost Per Acquisition (CPA)
+
+Run weekly A/B tests on:
+- Headlines/hooks
+- Visual styles
+- Posting times
+- Hashtag sets
+- CTA variations
+- Content formats
+
+## CRISIS MANAGEMENT
+
+When negative sentiment detected:
+1. Acknowledge quickly (within 1 hour)
+2. Take conversation private when appropriate
+3. Provide clear resolution steps
+4. Follow up publicly after resolution
+5. Document learnings for prevention
+
+Remember: You build COMMUNITIES, not just audiences. Every interaction is an opportunity to strengthen relationships and drive business results."""
+
+
+class SocialMediaWorker(BaseAgent):
+    """Elite social media automation worker with direct API posting"""
     
-    def __init__(self, llm: LLM, workspace_path: Path):
+    def __init__(
+        self,
+        name: str = "SocialMedia",
+        llm: Optional[LLM] = None,
+        workspace_path: Optional[Path] = None,
+        tools: Optional[List[str]] = None,
+        memory: Optional[Any] = None,
+        ai_provider: Optional[Any] = None,
+        social_config: Optional[Dict[str, Any]] = None
+    ):
         super().__init__(
-            name="SocialMedia",
-            description="Social media specialist - creates posts, manages presence, and engages audiences",
-            specialties=[
-                "Content Creation",
-                "Platform Strategy",
-                "Engagement Management",
-                "Hashtag Research",
-                "Content Calendars",
-                "Visual Content Ideas",
-                "Community Building",
-                "Influencer Outreach",
-                "Analytics",
-                "Trend Analysis"
-            ],
-            llm=llm,
-            workspace_path=workspace_path,
-            tools=[]
+            agent_id="socialmedia",
+            name=name,
+            agent_type=AgentType.WORKER,
+            tools=tools or ["file_write", "file_read", "shell_exec", "browser"],
+            system_prompt=SOCIAL_MEDIA_SYSTEM_PROMPT,
+            memory=memory,
+            ai_provider=ai_provider
         )
-        self.posts_created: List[Dict[str, Any]] = []
+        
+        self.workspace_path = workspace_path or Path.cwd() / "workspace" / "social"
+        self.workspace_path.mkdir(parents=True, exist_ok=True)
+        
+        # API credentials
+        self.social_config = social_config or {}
+        self.twitter_api_key = self.social_config.get("twitter_api_key", os.getenv("TWITTER_API_KEY"))
+        self.twitter_api_secret = self.social_config.get("twitter_api_secret", os.getenv("TWITTER_API_SECRET"))
+        self.twitter_bearer_token = self.social_config.get("twitter_bearer_token", os.getenv("TWITTER_BEARER_TOKEN"))
+        self.linkedin_client_id = self.social_config.get("linkedin_client_id", os.getenv("LINKEDIN_CLIENT_ID"))
+        self.linkedin_client_secret = self.social_config.get("linkedin_client_secret", os.getenv("LINKEDIN_CLIENT_SECRET"))
+        self.linkedin_access_token = self.social_config.get("linkedin_access_token", os.getenv("LINKEDIN_ACCESS_TOKEN"))
+        self.instagram_access_token = self.social_config.get("instagram_access_token", os.getenv("INSTAGRAM_ACCESS_TOKEN"))
+        self.facebook_page_token = self.social_config.get("facebook_page_token", os.getenv("FACEBOOK_PAGE_TOKEN"))
+        self.tiktok_access_token = self.social_config.get("tiktok_access_token", os.getenv("TIKTOK_ACCESS_TOKEN"))
+        
+        # Account management
+        self.connected_accounts: Dict[str, Dict[str, Any]] = {}
+        self.scheduled_posts: List[ScheduledPost] = []
+        self.published_posts: List[Dict[str, Any]] = []
+        
+        # Analytics tracking
+        self.metrics_history: Dict[str, List[PostMetrics]] = {}
+        self.hashtag_performance: Dict[str, Dict[str, Any]] = {}
+        
+        # Performance metrics
+        self.stats = {
+            "posts_published": 0,
+            "total_impressions": 0,
+            "total_engagements": 0,
+            "avg_engagement_rate": 0.0,
+            "follower_growth": 0,
+            "success_rate": 100.0
+        }
     
     def create_social_posts(
         self,
